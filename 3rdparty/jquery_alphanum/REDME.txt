@@ -1,0 +1,9 @@
+alphanumeric - allow both alphabet and numeric characters
+alpha - allow only alphabet characters
+numeric - allow only numeric characters
+API Properties
+
+allow - add excempted characters to the rule of prevention
+ichars - define a custome set of characters to prevent
+allcaps - allow only capital letters to be entered
+nocaps - allow only lowercase characters to be entered

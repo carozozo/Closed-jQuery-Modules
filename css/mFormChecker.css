@@ -1,0 +1,23 @@
+.check-form-required {
+    background-color: #ebcccc;
+}
+
+.check-form-num {
+    background-color: #b9def0;
+}
+
+.check-form-int {
+    background-color: #d1eeec;
+}
+
+.check-form-email {
+    background-color: #b2cce9;
+}
+
+.check-form-equal {
+    background-color: #f5e79e;
+}
+
+.check-form-minLength {
+    background-color: #bcf5ae;
+}

@@ -1,0 +1,69 @@
+/**
+general html css
+**/
+
+body, html {
+    height: 100%;
+}
+
+#header {
+    position: fixed;
+    z-index: 100;
+}
+
+#container {
+    padding-bottom: 20px;
+    min-height: 500px;
+}
+
+#tgBackground {
+    opacity: 0.05;
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: url('../img/travelglobal_bg.png') repeat;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+#page404 #bg {
+    width: 100%;
+    height: 415px;
+    background-image: url('../img/404/bg.jpg');
+}
+
+.navbar {
+    margin-bottom: 0;
+}
+
+.panel {
+    min-width: 800px;
+}
+
+.hidden {
+    display: none;
+}
+
+.ui-datepicker-month, .ui-datepicker-year {
+    color: #245269;
+}
+
+.navbar-brand {
+    margin-left: -25px;
+    padding-top: 0;
+}
+
+.popover-content {
+    word-wrap: break-word;
+}
+
+.table th, .table td {
+    vertical-align: middle !important;
+    word-break: break-all;
+}
+
+.table-borderless td, .table-borderless th {
+    border: 0 !important;
+}
