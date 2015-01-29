@@ -26,7 +26,7 @@ $.fn.mSelect = function (oaData, opt, mapFn) {
     var search = false;
     var searchByEnter = false;
     // clone obj-arr data
-    oaData = oaData.cloneArr();
+    oaData = $.lArr.cloneArr(oaData);
     if ($.lHelper.isFn(opt)) {
         mapFn = opt;
         opt = null;

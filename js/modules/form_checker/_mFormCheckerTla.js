@@ -4,8 +4,8 @@
  */
 
 
-tla.mFormChecker = {};
-tla.mFormChecker.en_us = {
+$.tLan.mFormChecker = {};
+$.tLan.mFormChecker.en_us = {
     required: 'Required',
     num: 'Please insert number',
     int: 'Please insert integer',
@@ -18,7 +18,7 @@ tla.mFormChecker.en_us = {
     }
 };
 
-tla.mFormChecker.zh_cn = {
+$.tLan.mFormChecker.zh_cn = {
     required: '必填',
     num: '请输入数字',
     int: '请输入整数',
@@ -31,7 +31,7 @@ tla.mFormChecker.zh_cn = {
     }
 };
 
-tla.mFormChecker.zh_tw = {
+$.tLan.mFormChecker.zh_tw = {
     required: '必填',
     num: '請輸入數字',
     int: '請輸入整數',

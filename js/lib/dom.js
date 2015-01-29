@@ -3,19 +3,15 @@
  * @author Caro.Huang
  */
 
-
 $.fn.isVisible = function () {
     return this.is(':visible');
 };
-
 $.fn.isHidden = function () {
     return !this.is(':visible');
 };
-
 $.fn.isEmpty = function () {
     return !$.trim(this.html());
 };
-
 /**
  * get / set DOM id
  * @param [sId]
@@ -28,7 +24,6 @@ $.fn.lId = function (sId) {
     }
     return this.attr('id');
 };
-
 /**
  * get / set DOM class
  * @param [sClass]
@@ -41,7 +36,6 @@ $.fn.lClass = function (sClass) {
     }
     return this.attr('class');
 };
-
 /**
  * get / set DOM title
  * @param [sTitle]
@@ -54,7 +48,6 @@ $.fn.lTitle = function (sTitle) {
     }
     return this.attr('title');
 };
-
 /**
  * get / set DOM type
  * @param [sType]
@@ -67,7 +60,6 @@ $.fn.lType = function (sType) {
     }
     return this.attr('type');
 };
-
 /**
  * get / set DOM src
  * @param [sSrc]
@@ -80,7 +72,6 @@ $.fn.lSrc = function (sSrc) {
     }
     return this.attr('src');
 };
-
 /**
  * get / set DOM href
  * @param [sHref]
@@ -93,7 +84,6 @@ $.fn.lHref = function (sHref) {
     }
     return this.attr('href');
 };
-
 /**
  * get / set [pms] attr in DOM for $.lUtil.checkPms
  */
@@ -104,20 +94,31 @@ $.fn.lPms = function (pms) {
     }
     return this.attr('pms');
 };
-
 /**
  * get / set [set-lan] attr in DOM for $.lLang.switchLang
+ * OPT
+ * printErr: bool (default: true) - if set attr when lang not exists
+ *
+ * @param sLangPath
+ * @param [opt]
+ * @returns {*}
  */
-$.fn.lSetLang = function (sLanPath) {
-    if (sLanPath !== undefined) {
-        this.attr('set-lan', sLanPath);
-        var lang = $.lLang.parseLanPath(sLanPath);
-        this.html(lang);
+$.fn.lSetLang = function (sLangPath, opt) {
+    var printErr = true;
+    if (opt) {
+        printErr = opt.printErr !== false;
+    }
+    if ($.lHelper.isStr(sLangPath)) {
+        var lang = $.lLang.parseLanPath(sLangPath, opt);
+        if (!lang && !printErr) {
+            return this;
+        }
+        this.attr('set-lan', sLangPath);
+        $.lHelper.isStr(lang) && this.html(lang);
         return this;
     }
     return this.attr('set-lan');
 };
-
 /**
  * set the [on] event without duplicate firing
  * @param eve
@@ -131,7 +132,6 @@ $.fn.action = function (eve, fn) {
     });
     return this;
 };
-
 /**
  * enable the DOM
  */
@@ -139,15 +139,21 @@ $.fn.enable = function () {
     this.prop('disabled', false);
     return this;
 };
-
 /**
  * disable the DOM
  */
 $.fn.disable = function () {
-    this.prop('disabled', true);
+    this.prop('checked', true);
     return this;
 };
-
+$.fn.setChecked = function (bool) {
+    bool = bool == true ? bool : false;
+    this.prop('checked', bool);
+    return this;
+};
+$.fn.isChecked = function () {
+    return this.is(':checked');
+};
 /**
  * get DOM value
  * @returns {*}
@@ -165,7 +171,6 @@ $.fn.getVal = function () {
     }
     return val;
 };
-
 /**
  * set val to DOM
  * @param val
@@ -197,14 +202,38 @@ $.fn.setVal = function (val) {
         this.val(val);
         return this;
     }
+    var fmt = this.attr('fmt');
+    switch (fmt) {
+        case 'dateTime':
+            val = $.lDateTime.formatDateTime(val, 'dateTime');
+            break;
+        case 'date':
+            val = $.lDateTime.formatDateTime(val, 'date');
+            break;
+        case 'weekDate':
+            val = $.lDateTime.formatDateTime(val, 'weekDate');
+            break;
+        case 'weekDateTime':
+            val = $.lDateTime.formatDateTime(val, 'weekDateTime');
+            break;
+        case 'monthDay':
+            val = $.lDateTime.formatDateTime(val, 'monthDay');
+            break;
+        case 'money':
+            val = $.lStr.formatMoney(val, 'int');
+            break;
+        case 'sMoney':
+            val = $.lStr.formatMoney(val, 'sInt');
+            break;
+        default :
+            break;
+    }
     this.html(val);
     return this;
 };
-
 $.fn.getTagName = function () {
     return this.prop('tagName');
 };
-
 /**
  * get DOM's whole-html
  * @returns {*}
@@ -216,7 +245,6 @@ $.fn.getHtml = function () {
     div.remove();
     return html;
 };
-
 /**
  * auto mapping DOM val to model with same key
  * ex.
@@ -237,7 +265,6 @@ $.fn.mapModel = function (model, cb) {
     });
     cb && cb();
 };
-
 /**
  * set z-index
  * @returns {$.fn}
@@ -251,7 +278,6 @@ $.fn.setIndexZ = function (zIndex) {
     this.css('z-index', ++indexZ);
     return this;
 };
-
 /**
  * append loading img do DOM
  */
@@ -262,7 +288,6 @@ $.fn.appendLoadingImg = function () {
         dom.append(img);
     });
 };
-
 /**
  * slide effect to show
  * @param [direction]
@@ -287,7 +312,6 @@ $.fn.slideShow = function (direction, duration, cb) {
         });
     });
 };
-
 /**
  * slide effect to hide
  * @param [direction]
@@ -312,7 +336,6 @@ $.fn.slideHide = function (direction, duration, cb) {
         });
     });
 };
-
 /**
  * toggle slide effect
  * @param direction
@@ -337,51 +360,6 @@ $.fn.slideToggle = function (direction, duration, cb) {
         });
     });
 };
-
-/**
- * format content to money type
- * OPT - please refer to $.lStr.formatMoney
- *
- * EX:
- * <div>100000</div>
- * to
- * <div>$100,000</div>
- * @param [opt]
- */
-$.fn.formatContentToMoney = function (opt) {
-    $.each(this, function (i, dom) {
-        dom = $(dom);
-        var val = dom.getVal();
-        if (!$.lStr.isNumeric(val)) {
-            return;
-        }
-        val = $.lStr.formatMoney(val, opt);
-        dom.setVal(val);
-    });
-};
-
-/**
- * format content to date-time type
- * OPT - please refer to $.lDateTime.formatDateTime
- *
- * EX:
- * <div>2014-04-28T13:10:33.870+0800</div>
- * to
- * <div>2014-04-28 13:10:33</div>
- * @param [opt]
- */
-$.fn.formatContentToDateTime = function (opt) {
-    $.each(this, function (i, dom) {
-        dom = $(dom);
-        var val = dom.getVal();
-        if (!val) {
-            return;
-        }
-        val = $.lDateTime.formatDateTime(val, opt);
-        dom.setVal(val);
-    });
-};
-
 /**
  * fire fn if press Enter when focus on dom
  * @param fn
@@ -401,7 +379,6 @@ $.fn.onPressEnter = function (fn, nameSpace) {
         });
     });
 };
-
 
 $.lDom = (function () {
     var self = {};
@@ -424,7 +401,6 @@ $.lDom = (function () {
         dA.css('cursor', 'pointer');
         return dA;
     };
-
     /**
      * create span with [set-lan] attribute
      * @param langPath
@@ -435,7 +411,6 @@ $.lDom = (function () {
         dSpan.lSetLang(langPath);
         return dSpan;
     };
-
     /**
      * return obj-arr with span-DOM that include [set-lan] attribute
      * @param langPath
@@ -458,7 +433,6 @@ $.lDom = (function () {
         }
         return spanList;
     };
-
     /**
      * create loading img
      * @param [width]
@@ -470,7 +444,6 @@ $.lDom = (function () {
         height = height || 20;
         return self.createImg('/img/loading.gif', width, height).lClass('loadingImg');
     };
-
     /**
      * create img
      * @param src
@@ -488,7 +461,6 @@ $.lDom = (function () {
         }
         return img;
     };
-
     /**
      * create bootstrap icon
      * @param type

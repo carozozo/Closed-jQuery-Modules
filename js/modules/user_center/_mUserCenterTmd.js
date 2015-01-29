@@ -3,11 +3,11 @@
  * @author Caro.Huang
  */
 
-tmd.mUserCenter = {};
+$.tMod.mUserCenter = {};
 
-tmd.mUserCenter.userUpdate = function () {
+$.tMod.mUserCenter.userUpdate = function () {
     var obj = {};
-    var oUserInfo = $.tSysVars.userInfo;
+    var oUserInfo = $.lUtil.getUserInfo();
     obj.uid = oUserInfo.uid;
     obj.userName = oUserInfo.userName;
     obj.pwd = null;

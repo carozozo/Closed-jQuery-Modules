@@ -1,6 +1,6 @@
 /**
  * The list-DOM module
- * v1.2
+ * v1.4
  * @author Caro.Huang
  */
 
@@ -16,7 +16,6 @@ $.mListDom = (function () {
  * OPT
  * minForDelay: int (default: 0) - build each-DOM by delay if data-count bigger than minForDelay
  * cb: fn (default: null) - callback-fn after mapping done
- * mapFn: fn (default: null) - fn when mapping each-data
  *
  * ex1.
  * mListDom(aData,function(){ do_something });
@@ -25,10 +24,11 @@ $.mListDom = (function () {
  * mListDom(aData, {mapFn: function(){ do_something });
  *
  * @param oaData
- * @param [opt]
+ * @param [dataSwitchFn]
  * @param [mapFn]
+ * @param [opt]
  */
-$.fn.mListDom = function (oaData, opt, mapFn) {
+$.fn.mListDom = function (oaData, dataSwitchFn, mapFn, opt) {
     var self = this;
     var selfId = 'mLisDom';
     var groupNumKey = 'mListDomGroupNum';
@@ -37,12 +37,9 @@ $.fn.mListDom = function (oaData, opt, mapFn) {
     var dataCount = oaData.length;
     var minForDelay = 0;
     var cb = null;
-    if ($.lHelper.isFn(opt)) {
-        mapFn = opt;
-    } else if (opt) {
+    if (opt) {
         minForDelay = opt.minForDelay || minForDelay;
         cb = opt.cb || cb;
-        mapFn = opt.mapFn || mapFn;
     }
 
     if (self.data(groupNumKey)) {
@@ -63,19 +60,23 @@ $.fn.mListDom = function (oaData, opt, mapFn) {
                 .show()
                 .lClass(selfId)
                 .lClass(groupName);
+            if ($.lHelper.isFn(dataSwitchFn)) {
+                oData = dataSwitchFn(oData);
+                oaData[i] = oData;
+            }
             // auto map data to data-DOM, and call fn for data-DOM
             $.lModel.mapDom(oData, dEachDom, function () {
+                if (i === 0) {
+                    self.after(dEachDom);
+                } else {
+                    $('.' + groupName + ':last').after(dEachDom);
+                }
                 mapFn && mapFn(i, oData, dEachDom);
+                if (i === dataCount - 1) {
+                    // fire callback after last-dom built
+                    cb && cb();
+                }
             });
-            if (i === 0) {
-                self.after(dEachDom);
-            } else {
-                $('.' + groupName + ':last').after(dEachDom);
-            }
-            if (i === dataCount - 1) {
-                // fire callback after last-dom built
-                cb && cb();
-            }
         };
         if (minForDelay !== 0 && dataCount > minForDelay) {
             setTimeout(bdEachDom, i);

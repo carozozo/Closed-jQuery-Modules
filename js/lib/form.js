@@ -49,6 +49,10 @@ $.lForm = (function () {
 
     /**
      * get all FORM-DOM-Tag value and cover to Obj by DOM-id
+     * OPT
+     * coverEmpty: bool (default: false) - if cover to obj when value is empty
+     * extendModel: obj (default: {}) - extend-obj after cover
+     *
      * @param dom
      * @param [opt]
      * @returns {{}}
@@ -59,7 +63,7 @@ $.lForm = (function () {
         var extendModel = {};
         if (opt) {
             coverEmpty = opt.coverEmpty !== false;
-            extendModel = opt.extendModel ? opt.extendModel : extendModel;
+            extendModel = opt.extendModel || extendModel;
         }
         dom = $.lStr.toDom(dom);
         dom.find('input, select, textarea').each(function () {

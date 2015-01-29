@@ -26,17 +26,21 @@ $.mUserCenter = function () {
         }
         // get html code
         if (!dUserInfo.pageHtml) {
-            dUserInfo.pageHtml = $.lUtil.getPageHtml('m_user_center/userInfo');
+            dUserInfo.pageHtml = $.lPage.getPageHtml('m_user_center/userInfo', {
+                ifSwitch: false,
+                async: false
+            });
         }
         dUserInfo.html(dUserInfo.pageHtml);
         var setForm = function () {
             // after createChecker dForm has mFormChecker-mFormChecker
             dForm.removeCheckerClass();
             $.lForm.clean(dForm);
-            var oUserInfo = $.tSysVars.userInfo;
+            var oUserInfo = $.lUtil.getUserInfo();
             // auto mapping the value to form-Dom
             $.lModel.mapDom(oUserInfo, dForm, function () {
-                dForm.find('#roleName').setVal(oUserInfo.roleJ.name);
+                if (oUserInfo && oUserInfo.roleJ && oUserInfo.roleJ.name)
+                    dForm.find('#roleName').setVal(oUserInfo.roleJ.name);
             });
         };
         var dForm = dUserInfo.find('form');
@@ -70,12 +74,12 @@ $.mUserCenter = function () {
                 if (!pass) {
                     return;
                 }
-                var mUserUpdate = tmd.mUserCenter.userUpdate();
+                var mUserUpdate = $.tMod.mUserCenter.userUpdate();
                 dForm.mapModel(mUserUpdate, function () {
                     $.ajax.user.updateUserAndSetInfoAJ(mUserUpdate, function (res) {
                         $.mNtfc.showMsgAftUpdate(res, function (result) {
                             // result is updated user info, set to $.tSysVars.userInfo
-                            $.tSysVars.userInfo = result;
+                            $.lUtil.setUserInfo(result);
                             var greetingLang = greetingLangFn(dDisplayName.val());
                             var dTabTitle = $.mNav.getTabTitle('userCenter');
                             dTabTitle.html(greetingLang);
@@ -159,7 +163,8 @@ $.mUserCenter = function () {
             side: 'right',
             dropDownItems: [userInfoItem, logoutItem],
             title: function () {
-                return greetingLangFn($.tSysVars.userInfo.displayName);
+                var oUserInfo = $.lUtil.getUserInfo();
+                return greetingLangFn(oUserInfo.displayName);
             },
             inLogged: true
         };

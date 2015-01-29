@@ -3,81 +3,129 @@
  * @author Caro.Huang
  */
 
+$.lArr = (function () {
+    var self = {};
 
-/**
- * sort arr by obj key
- * @param key
- * @param [sort]: bool (default: true for ASC)
- * @returns {Array}
- */
-Array.prototype.sortByObjKey = function (key, sort) {
-    sort = (sort !== false);
-    this.sort(function (a, b) {
-        var order1 = a[key] || 0;
-        var order2 = b[key] || 0;
-        if (sort)
-            return ((order1 < order2) ? -1 : ((order1 > order2) ? 1 : 0));
-        return((order1 > order2) ? -1 : ((order1 < order2) ? 1 : 0));
-    });
-    return this;
-};
-
-/**
- * sum the value in array (number)
- */
-Array.prototype.sum = function () {
-    var sum = 0;
-    $.each(this, function (i, val) {
-        if ($.lHelper.isNum(val)) {
-            sum += val;
+    self.extendArr = function (arr1, arr2, opt) {
+        var noDuplicate = true;
+        if (opt) {
+            noDuplicate = opt.noDuplicate !== false;
         }
-    });
-    return sum;
-};
-
-/**
- * remove array element by index
- * @param i
- */
-Array.prototype.removeByIndex = function (i) {
-    this.splice(i, 1);
-};
-
-/**
- * remove array element by value
- * @param val
- */
-Array.prototype.removeByValue = function (val) {
-    var i = this.indexOf(val);
-    if (i > -1) {
-        this.splice(i, 1);
-    }
-};
-
-/**
- * clone array
- * @returns {Array}
- */
-Array.prototype.cloneArr = function () {
-    return $.extend(true, [], this);
-};
-
-/**
- * remove duplicate value in arr
- * @returns {Array}
- */
-Array.prototype.removeDuplicate = function () {
-    var aUnique = [];
-    $.each(this, function (i, el) {
-        if ($.inArray(el, aUnique) === -1) aUnique.push(el);
-    });
-    return aUnique;
-};
-
-/**
- * push arr without duplicate-value
- * @param val
- */
-Array.prototype.pushNoDuplicate = function (val) {
-    if ($.inArray(val, this) < 0) this.push(val);
-};
+        $.each(arr2, function (i, eachVal) {
+            if (noDuplicate) {
+                self.pushNoDup(arr1, eachVal);
+                return;
+            }
+            arr1.push(eachVal);
+        });
+    };
+    /**
+     * clone array
+     * @returns {Array}
+     */
+    self.cloneArr = function (arr) {
+        return $.extend(true, [], arr);
+    };
+    /**
+     * sort arr by obj key
+     * @param key
+     * @param [sort]: bool (default: true for ASC)
+     * @param arr
+     * @returns {Array}
+     */
+    self.sortByObjKey = function (arr, key, sort) {
+        sort = (sort !== false);
+        arr.sort(function (a, b) {
+            var order1 = a[key] || 0;
+            var order2 = b[key] || 0;
+            if (sort)
+                return ((order1 < order2) ? -1 : ((order1 > order2) ? 1 : 0));
+            return((order1 > order2) ? -1 : ((order1 < order2) ? 1 : 0));
+        });
+        return arr;
+    };
+    /**
+     * sum the value in array (number)
+     */
+    self.sumOfArr = function (arr) {
+        var sum = 0;
+        $.each(arr, function (i, val) {
+            if ($.lHelper.isNum(val)) {
+                sum += val;
+            }
+        });
+        return sum;
+    };
+    /**
+     * remove array element by index
+     * @param arr
+     * @param i
+     */
+    self.removeByIndex = function (arr, i) {
+        if (i > -1) {
+            arr.splice(i, 1);
+        }
+        return arr;
+    };
+    /**
+     * remove array element by value
+     * @param arr
+     * @param val
+     */
+    self.removeByArrValue = function (arr, val) {
+        var i = arr.indexOf(val);
+        if (i > -1) {
+            arr.splice(i, 1);
+        }
+    };
+    /**
+     * remove duplicate value in arr
+     * @returns {Array}
+     */
+    self.removeDup = function (arr) {
+        var aUnique = $.lArr.cloneArr(arr);
+        return $.unique(aUnique);
+//        var aUnique = [];
+//        $.each(arr, function (i, el) {
+//            ($.inArray(el, aUnique) === -1) && aUnique.push(el);
+//        });
+//        return aUnique;
+    };
+    /**
+     * add the val into array if not exists
+     * @param arr
+     * @param val
+     * @returns {*}
+     */
+    self.pushNoDup = function (arr, val) {
+        var index = arr.indexOf(val);
+        if (index < 0) {
+            arr.push(val);
+        }
+        return arr;
+    };
+    self.pushNoEmpty = function (arr, val) {
+        if ($.lHelper.isEmptyVal(val)) {
+            return arr;
+        }
+        arr.push(val);
+        return arr;
+    };
+    /**
+     * check if empty value in array
+     * @returns {boolean}
+     */
+    self.hasEmptyInArr = function (arr) {
+        var hasEmpty = false;
+        arr = $.lHelper.coverToArr(arr);
+        $.each(arr, function (i, val) {
+            if ($.lHelper.isEmptyVal(val)) {
+                hasEmpty = true;
+                return false;
+            }
+            return true;
+        });
+        return hasEmpty;
+    };
+    return self;
+})();

@@ -1,6 +1,6 @@
 /**
  * page-history module
- * v2.0
+ * v2.1
  * @author Caro.Huang
  */
 
@@ -24,8 +24,9 @@ $.mPageHistory = (function () {
     var getPageHistory = function (index) {
         var oaPageHistory = null;
         if (historyByDb) {
+            var oUserInfo = $.lUtil.getUserInfo();
             var opt = {
-                uid: $.tSysVars.userInfo.uid
+                uid: oUserInfo.uid
             };
             $.ajax.mPageHistory.getPageHistoryByUidAJ(opt, function (res) {
                 $.lAjax.parseRes(res, function (result) {
@@ -33,12 +34,12 @@ $.mPageHistory = (function () {
                         oaPageHistory = result.pageHistory;
                     }
                 }, function () {
-                    oaPageHistory = $.lCookie.get('oaPageHistory');
+                    oaPageHistory = $.lCookie.get(selfId);
                     historyByDb = false;
                 });
             });
         } else {
-            oaPageHistory = $.lCookie.get('oaPageHistory');
+            oaPageHistory = $.lCookie.get(selfId);
         }
         if (!oaPageHistory) {
             return [];
@@ -88,19 +89,20 @@ $.mPageHistory = (function () {
         }
 
         if (historyByDb) {
+            var oUserInfo = $.lUtil.getUserInfo();
             var opt = {
-                uid: $.tSysVars.userInfo.uid,
+                uid: oUserInfo.uid,
                 pageHistory: oaPageHistory
             };
             $.ajax.mPageHistory.insertPageHistoryByUidAJ(opt, function (res) {
                 $.lAjax.parseRes(res, function () {
                 }, function () {
-                    $.lCookie.set('oaPageHistory', oaPageHistory);
+                    $.lCookie.set(selfId, oaPageHistory);
                     historyByDb = false;
                 })
             });
         } else {
-            $.lCookie.set('oaPageHistory', oaPageHistory);
+            $.lCookie.set(selfId, oaPageHistory);
         }
 
         $.lEventEmitter.emitEvent('aftSetPageHistory', emitObj);
@@ -131,12 +133,12 @@ $.mPageHistory = (function () {
             $.ajax.mPageHistory.removeAllPageHistoryAJ(function (res) {
                 $.lAjax.parseRes(res, function () {
                 }, function () {
-                    $.lCookie.set('oaPageHistory', []);
+                    $.lCookie.set(selfId, []);
                     historyByDb = false;
                 })
             });
         } else {
-            $.lCookie.set('oaPageHistory', []);
+            $.lCookie.set(selfId, []);
         }
     };
 
@@ -156,14 +158,17 @@ $.mPageHistory = (function () {
         $.each(oaPageHistory, function (i, oPageHistory) {
             var page = oPageHistory.page;
             var vars = oPageHistory.vars;
-            var oPageInfo = $.tPageInfo[page];
+            var oPageInfo = $.lPage.getPageInfo(page);
+            if ($.lHelper.isEmptyVal(oPageInfo)) {
+                return;
+            }
             var langPathTitle = oPageInfo.title;
             var item = {
                 id: selfId + i,
                 iconId: 'share-alt',
                 titleLangPath: langPathTitle,
                 click: function () {
-                    $.lUtil.goPage(page, vars);
+                    $.lPage.goPage(page, vars);
                 }
             };
             items.push(item);

@@ -4,15 +4,15 @@
  */
 
 
-tla.mSelect = {};
-tla.mSelect.en_us = {
+$.tLan.mSelect = {};
+$.tLan.mSelect.en_us = {
     searchEnter: 'Search by press Enter'
 };
 
-tla.mSelect.zh_tw = {
+$.tLan.mSelect.zh_tw = {
     searchEnter: '按下Enter鍵搜尋'
 };
 
-tla.mSelect.zh_cn = {
+$.tLan.mSelect.zh_cn = {
     searchEnter: '按下Enter键搜寻'
 };

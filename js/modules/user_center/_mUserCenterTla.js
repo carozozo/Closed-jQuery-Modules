@@ -3,8 +3,8 @@
  * @author Caro.Huang
  */
 
-tla.mUserCenter = {};
-tla.mUserCenter.en_us = {
+$.tLan.mUserCenter = {};
+$.tLan.mUserCenter.en_us = {
     Greeting: function (displayName) {
         return 'Hello ' + displayName;
     },
@@ -21,7 +21,7 @@ tla.mUserCenter.en_us = {
     Logout: 'Logout'
 };
 
-tla.mUserCenter.zh_cn = {
+$.tLan.mUserCenter.zh_cn = {
     Greeting: function (displayName) {
         return '您好 ' + displayName;
     },
@@ -38,7 +38,7 @@ tla.mUserCenter.zh_cn = {
     Logout: '登出'
 };
 
-tla.mUserCenter.zh_tw = {
+$.tLan.mUserCenter.zh_tw = {
     Greeting: function (displayName) {
         return '您好 ' + displayName;
     },

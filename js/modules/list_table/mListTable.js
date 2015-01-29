@@ -1,6 +1,6 @@
 /**
  * The table list module
- * v1.2
+ * v1.3
  * @author Caro.Huang
  */
 
@@ -8,8 +8,6 @@
 /**
  * create list-table by array data, will auto mapping with key as id/class
  * OPT
- * mapFn: fn (default: null) - function when mapping data
- * dataSwitchFn: fn (default: undefined) - fn for switching data
  * defStyle: bool (default: true) - if set the default style of list-table
  * defFadeIn: bool (default: true) - if show with fadeIn-animate after table built
  * emptyMsg: str (default: '') - the empty msg
@@ -27,24 +25,20 @@
  * removeEvenClass: remove class from even-DOM
  *
  * @param oaData
- * @param [opt]
+ * @param [dataSwitchFn]
  * @param [mapFn]
+ * @param [opt]
  */
-$.fn.mListTable = function (oaData, opt, mapFn) {
+$.fn.mListTable = function (oaData, dataSwitchFn, mapFn, opt) {
     var self = this;
     var selfId = 'mListTable';
     var langPathRoot = 'mListTable.';
-    var dataSwitchFn = null;
     var defStyle = true;
     var defFadeIn = true;
     var emptyLangPath = langPathRoot + 'emptyMsg';
     var emptyMsg = '';
     var emptyFontSize = 3;
-    if ($.lHelper.isFn(opt)) {
-        dataSwitchFn = opt;
-    } else if (opt) {
-        mapFn = opt.mapFn || mapFn;
-        dataSwitchFn = opt.dataSwitchFn || dataSwitchFn;
+    if (opt) {
         defStyle = opt.defStyle !== false;
         defFadeIn = opt.defFadeIn !== false;
         emptyMsg = opt.emptyMsg || emptyMsg;
@@ -97,15 +91,15 @@ $.fn.mListTable = function (oaData, opt, mapFn) {
             return;
         }
         self.append(dListDataTmp);
-        $.each(oaData, function (index, oData) {
+        $.each(oaData, function (i, oData) {
             var dEachDom = dListDataTmp.clone().show();
             if ($.lHelper.isFn(dataSwitchFn)) {
                 oData = dataSwitchFn(oData);
-                oaData[index] = oData;
+                oaData[i] = oData;
             }
             // auto map data to data-DOM, and call fn for data-DOM
             $.lModel.mapDom(oData, dEachDom, function () {
-                mapFn && mapFn(index, oData, dEachDom);
+                mapFn && mapFn(i, oData, dEachDom);
             });
             self.find('.basic-dataObj:last').after(dEachDom);
         });

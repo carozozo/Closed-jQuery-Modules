@@ -3,8 +3,8 @@
  * @author Caro.Huang
  */
 
-tla.mPagination = {};
-tla.mPagination.en_us = {
+$.tLan.mPagination = {};
+$.tLan.mPagination.en_us = {
     GoTo: 'Go to page ',
     Page: ' ',
     ShowRecord1: 'Show ',
@@ -28,7 +28,7 @@ tla.mPagination.en_us = {
     }
 };
 
-tla.mPagination.zh_cn = {
+$.tLan.mPagination.zh_cn = {
     GoTo: '跳转到第 ',
     Page: ' 页',
     ShowRecord1: '每页显示 ',
@@ -44,7 +44,7 @@ tla.mPagination.zh_cn = {
     }
 };
 
-tla.mPagination.zh_tw = {
+$.tLan.mPagination.zh_tw = {
     GoTo: '跳轉到第 ',
     Page: ' 页',
     ShowRecord1: '每頁顯示 ',

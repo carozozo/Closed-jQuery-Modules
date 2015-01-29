@@ -20,7 +20,7 @@ $.lColorStyle = (function () {
     var blue = '#428bca';
     var red = '#d9534f';
     var orange = '#f0ad4e';
-    var gray = '#f8f8f8';
+    var gray = '#828282';
     var oColor = {
         green: green,
         blue: blue,
@@ -123,10 +123,10 @@ $.lColorStyle = (function () {
             return  color;
         }
         if (degree > 0) {
-            return self.darkerColor(color, degree * .2);
+            return self.darkerColor(color, degree * .1);
         }
         degree = -degree;
-        return self.lighterColor(color, degree * .2);
+        return self.lighterColor(color, degree * .1);
     };
 
     self.getDark = function () {

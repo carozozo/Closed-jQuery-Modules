@@ -4,8 +4,8 @@
  */
 
 
-tla.mBtn = {};
-tla.mBtn.en_us = {
+$.tLan.mBtn = {};
+$.tLan.mBtn.en_us = {
     Create: 'Create',
     Edit: 'Edit',
     Delete: 'Delete',
@@ -27,7 +27,7 @@ tla.mBtn.en_us = {
     Close: 'Close'
 };
 
-tla.mBtn.zh_tw = {
+$.tLan.mBtn.zh_tw = {
     Create: '新增',
     Edit: '编辑',
     Delete: '删除',
@@ -49,7 +49,7 @@ tla.mBtn.zh_tw = {
     Close: '關閉'
 };
 
-tla.mBtn.zh_cn = {
+$.tLan.mBtn.zh_cn = {
     Create: '新增',
     Edit: '编辑',
     Delete: '删除',

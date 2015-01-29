@@ -48,7 +48,7 @@ $.fn.mFormChecker = function (opt) {
     var daEqualTarget = [];
     var daMinLengthSource = [];
     var daMinLength = [];
-    var mFormCheckerPass = false;
+//    var mFormCheckerPass = false;
     // the default options
     var onBlur = false;
     var usePlaceHolder = true;
@@ -59,15 +59,6 @@ $.fn.mFormChecker = function (opt) {
         usePlaceHolder = opt.usePlaceHolder !== false;
         useTip = opt.useTip !== false;
     }
-    var coverDomToArr = function (dom) {
-        var aDom = [];
-        if (!$.lHelper.isArr(dom)) {
-            aDom = [dom];
-        } else {
-            aDom = dom;
-        }
-        return aDom;
-    };
     var setPlaceHolder = function (dom) {
         var setMsg = function () {
             var sLang = '';
@@ -319,8 +310,8 @@ $.fn.mFormChecker = function (opt) {
 
     };
 
-    self.addRequired = function (dom) {
-        var aDom = coverDomToArr(dom);
+    self.addRequired = function (aDom) {
+        var aDom = $.lHelper.coverToArr(aDom);
         var subLangPath = langPathRoot + 'required';
         $.each(aDom, function (i, dom) {
             if (daRequired.indexOf(dom) > -1) {
@@ -336,22 +327,22 @@ $.fn.mFormChecker = function (opt) {
             setTip(dom);
         });
     };
-    self.removeRequired = function (dom) {
-        var aDom = coverDomToArr(dom);
+    self.removeRequired = function (aDom) {
+        aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
             var indexInSource = daRequired.indexOf(dom);
             if (indexInSource < 0) {
                 return;
             }
-            daRequired.removeByIndex(indexInSource);
+            $.lArr.removeByIndex(daRequired, indexInSource);
             dom.off(sBlurEventRoot + 'required');
             removeLangPathByKey(dom, 'required');
             // reset tip after removeLangPath
             setTip(dom);
         });
     };
-    self.addNum = function (dom) {
-        var aDom = coverDomToArr(dom);
+    self.addNum = function (aDom) {
+        aDom = $.lHelper.coverToArr(aDom);
         var subLangPath = langPathRoot + 'num';
         $.each(aDom, function (i, dom) {
             if (daNum.indexOf(dom) > -1) {
@@ -367,21 +358,21 @@ $.fn.mFormChecker = function (opt) {
             setTip(dom);
         });
     };
-    self.removeNum = function (dom) {
-        var aDom = coverDomToArr(dom);
+    self.removeNum = function (aDom) {
+        aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
             var indexInSource = daNum.indexOf(dom);
             if (indexInSource < 0) {
                 return;
             }
-            daNum.removeByIndex(indexInSource);
+            $.lArr.removeByIndex(daNum, indexInSource);
             dom.off(sBlurEventRoot + 'num');
             removeLangPathByKey(dom, 'num');
             setTip(dom);
         });
     };
-    self.addInt = function (dom) {
-        var aDom = coverDomToArr(dom);
+    self.addInt = function (aDom) {
+        aDom = $.lHelper.coverToArr(aDom);
         var subLangPath = langPathRoot + 'int';
         $.each(aDom, function (i, dom) {
             if (daInt.indexOf(dom) > -1) {
@@ -397,21 +388,21 @@ $.fn.mFormChecker = function (opt) {
             setTip(dom);
         });
     };
-    self.removeInt = function (dom) {
-        var aDom = coverDomToArr(dom);
+    self.removeInt = function (aDom) {
+        aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
             var indexInSource = daInt.indexOf(dom);
             if (daInt.indexOf(dom) < 0) {
                 return;
             }
-            daInt.removeByIndex(indexInSource);
+            $.lArr.removeByIndex(daInt, indexInSource);
             dom.off(sBlurEventRoot + 'int');
             removeLangPathByKey(dom, 'int');
             setTip(dom);
         });
     };
-    self.addEmail = function (dom) {
-        var aDom = coverDomToArr(dom);
+    self.addEmail = function (aDom) {
+        aDom = $.lHelper.coverToArr(aDom);
         var subLangPath = langPathRoot + 'email';
         $.each(aDom, function (i, dom) {
             if (daEmail.indexOf(dom) > -1) {
@@ -427,14 +418,14 @@ $.fn.mFormChecker = function (opt) {
             setTip(dom);
         });
     };
-    self.removeEmail = function (dom) {
-        var aDom = coverDomToArr(dom);
+    self.removeEmail = function (aDom) {
+        aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
             var indexInSource = daEmail.indexOf(dom);
             if (indexInSource < 0) {
                 return;
             }
-            daEmail.removeByIndex(indexInSource);
+            $.lArr.removeByIndex(daEmail, indexInSource);
             dom.off(sBlurEventRoot + 'email');
             removeLangPathByKey(dom, 'email');
             setTip(dom);
@@ -465,22 +456,22 @@ $.fn.mFormChecker = function (opt) {
 
         setTip(dom);
     };
-    self.removeEqual = function (dom) {
-        var aDom = coverDomToArr(dom);
+    self.removeEqual = function (aDom) {
+        aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
             var indexInSource = daEqualSource.indexOf(dom);
             if (indexInSource < 0) {
                 return;
             }
-            daEqualSource.removeByIndex(indexInSource);
-            daEqualTarget.removeByIndex(indexInSource);
+            $.lArr.removeByIndex(daEqualSource, indexInSource);
+            $.lArr.removeByIndex(daEqualTarget, indexInSource);
             dom.off(sBlurEventRoot + 'equal');
             removeLangPathByKey(dom, 'equal');
             setTip(dom);
         });
     };
-    self.addMinLength = function (dom, minLength) {
-        var aDom = coverDomToArr(dom);
+    self.addMinLength = function (aDom, minLength) {
+        aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
             if (daMinLengthSource.indexOf(dom) > -1) {
                 return;
@@ -505,15 +496,15 @@ $.fn.mFormChecker = function (opt) {
             return minLengthLangFn(minLength);
         }
     };
-    self.removeMinLength = function (dom) {
-        var aDom = coverDomToArr(dom);
+    self.removeMinLength = function (aDom) {
+        aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
             var indexInSource = daMinLengthSource.indexOf(dom);
             if (indexInSource < 0) {
                 return;
             }
-            daMinLengthSource.removeByIndex(indexInSource);
-            daMinLength.removeByIndex(indexInSource);
+            $.lArr.removeByIndex(daMinLengthSource, indexInSource);
+            $.lArr.removeByIndex(daMinLength, indexInSource);
             dom.off(sBlurEventRoot + 'minLength');
             removeLangPathByKey(dom, 'minLength');
             setTip(dom);
@@ -524,17 +515,20 @@ $.fn.mFormChecker = function (opt) {
             return (sClass.match(/\bcheck-form-\S+/g) || []).join(' ');
         });
     };
+    // TODO
     self.checkForm = function () {
         var pass = true;
-        var aCheckFn = [checkRequired, checkNum, checkInt, checkEmail, checkEqual, checkMinLength];
+        var aCheckFn = [checkRequired, checkNum, checkInt, checkEqual, checkMinLength];
         $.each(aCheckFn, function (index, fn) {
             if (!fn()) {
                 pass = false;
             }
         });
-        mFormCheckerPass = pass;
+//        mFormCheckerPass = pass;
+        self.mFormCheckerPass = pass;
         return pass;
     };
-    self.mFormCheckerPass = mFormCheckerPass;
+//    self.mFormCheckerPass = mFormCheckerPass;
+    self.removeCheckerClass();
     return self;
 };

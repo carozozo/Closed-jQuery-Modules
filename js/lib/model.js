@@ -10,22 +10,23 @@ $.lModel = (function () {
      * auto mapping model val with same key
      * ex.
      * m1={id:'caro',pwd:'123'}
-     * m2={id:'',pwd:'',status:false}
-     * mapModel(m1,m2,function(){ m2.status=true})
-     * m2={id:'caro',pwd:'123',status:true}
+     * m2={id:'',pwd:'456',status:false}
+     * mapModel(m1,m2,function(){ ... })
+     * => m1={id:'',pwd:'456'}
      * @param m1
      * @param m2
      * @param [cb]
      */
-    self.mapModel = function (m1, m2, cb) {
-        // set m1's value to m2 with same key
-        $.each(m1, function (key, val) {
-            if ($.type(m2[key]) !== 'undefined')
-                m2[key] = val;
+    self.mapData = function (m1, m2, cb) {
+        // set m2's value to m1 with same key
+        $.each(m1, function (key) {
+            if (!$.lObj.keyInObj(m2, key)) {
+                return;
+            }
+            m1[key] = m2[key];
         });
         cb && cb();
     };
-
     /**
      * uto mapping model val to DOM with key as id/class
      * @param model
@@ -48,6 +49,5 @@ $.lModel = (function () {
         }
         cb && cb();
     };
-
     return self;
 })();

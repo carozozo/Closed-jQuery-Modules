@@ -27,15 +27,16 @@ $.lAjax = (function () {
         });
         // the ajax global success fn
         $(document).ajaxSuccess(function (event, xhr, settings) {
-            if (xhr.responseJSON.__noUser) {
+            var responseJSON = xhr.responseJSON;
+            if (!responseJSON) {
+                return;
+            }
+            if (responseJSON.__noUser) {
                 $.lUtil.logout();
                 return;
             }
-            if (xhr.responseJSON.__rej) {
-                if ($.tSysVars.nowPage === $.tSysVars.indexPage) {
-                    return;
-                }
-                $.lUtil.goIndexPage();
+            if (responseJSON.__rej) {
+                $.lPage.goIndexPage();
                 return;
             }
             if (settings.url !== '/main/html/getPage')

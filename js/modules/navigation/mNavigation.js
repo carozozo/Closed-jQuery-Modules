@@ -342,7 +342,8 @@ $.mNav = (function () {
                 oClickFn[id] = opt.click;
             });
             // sort by order
-            aSideOpt.sortByObjKey('order');
+//            aSideOpt.sortByObjKey('order');
+            $.lArr.sortByObjKey(aSideOpt, 'order');
             dSide.empty();
             $.each(aSideOpt, function (i, opt) {
                 var id = opt.id;

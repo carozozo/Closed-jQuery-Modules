@@ -4,8 +4,8 @@
  */
 
 
-tla.mInputFile = {};
-tla.mInputFile.en_us = {
+$.tLan.mInputFile = {};
+$.tLan.mInputFile.en_us = {
     description: 'Please click to select files, or drag files to here.',
     maxLengthMsg: function (maxLength) {
         var msg = 'Can select max to ' + maxLength + ' file';
@@ -43,7 +43,7 @@ tla.mInputFile.en_us = {
     }
 };
 
-tla.mInputFile.zh_tw = {
+$.tLan.mInputFile.zh_tw = {
     description: '請點擊選取檔案，或將檔案拖曳至此.',
     maxLengthMsg: function (maxLength) {
         return '最多可選取' + maxLength + '個檔案.';
@@ -71,7 +71,7 @@ tla.mInputFile.zh_tw = {
     }
 };
 
-tla.mInputFile.zh_cn = {
+$.tLan.mInputFile.zh_cn = {
     description: '请点击选取文档，或将文档拖曳至此.',
     maxLengthMsg: function (maxLength) {
         return '最多可选取' + maxLength + '个文档.';

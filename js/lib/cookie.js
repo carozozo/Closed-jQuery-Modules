@@ -6,7 +6,7 @@
 
 $.lCookie = (function () {
     var self = {};
-
+    var host = $.tSysVars.host || 'host';
     /**
      * get cookie value by key
      * @param key
@@ -14,6 +14,7 @@ $.lCookie = (function () {
      */
     self.get = function (key) {
         if (key) {
+            key = host + '-' + key;
             var cookie = $.cookie(key);
             try {
                 return JSON.parse(cookie);
@@ -39,6 +40,7 @@ $.lCookie = (function () {
                 console.error('val=', val);
             }
         }
+        key = host + '-' + key;
         $.cookie(key, val);
     };
 

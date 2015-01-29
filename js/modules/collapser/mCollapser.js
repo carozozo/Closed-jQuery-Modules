@@ -1,6 +1,6 @@
 /**
  * The collapse module
- * v1.5
+ * v1.6
  * @author Caro.Huang
  */
 
@@ -64,15 +64,21 @@ $.fn.mCollapser = function (content, opt) {
         });
     })();
     var aAppend = ['append', 'prepend', 'after', 'before'];
+    var collapserIndex = $.mCollapser.index;
     var selfId = $.mCollapser.selfId;
-    var sourceName = $.mCollapser.sourceName;
-    var targetName = $.mCollapser.targetName;
-    var contentName = $.mCollapser.contentName;
+    var dCollapserClass = selfId;
+    var dCollapserIndexClass = dCollapserClass + collapserIndex;
+    var sourceClass = $.mCollapser.sourceName;
+    var sourceIndexClass = sourceClass + collapserIndex;
+    var targetClass = $.mCollapser.targetName;
+    var targetIndexClass = targetClass + collapserIndex;
+    var contentClass = $.mCollapser.contentName;
+    var contentId = contentClass + collapserIndex;
     var toggleCollapser = function () {
         if (closeOthers) {
             hideOthersCollapser();
         }
-        if (dCollapser.find('.' + contentName).is(':hidden')) {
+        if (dCollapseContent.is(':hidden')) {
             showCollapser();
         } else {
             hideCollapser();
@@ -117,11 +123,11 @@ $.fn.mCollapser = function (content, opt) {
         });
     };
     var hideOthersCollapser = function () {
-        $.each($('.' + selfId), function (i, dEachCollapser) {
+        $.each($('.' + dCollapserClass), function (i, dEachCollapser) {
             dEachCollapser = $(dEachCollapser);
             // not same dCollapse
             if (dCollapser.get(0) !== dEachCollapser.get(0)) {
-                dEachCollapser.find('.' + contentName).slideUp(function () {
+                dEachCollapser.find('.' + contentClass).slideUp(function () {
                     dEachCollapser.hide();
                 });
             }
@@ -152,11 +158,12 @@ $.fn.mCollapser = function (content, opt) {
         beforeHide = opt.beforeHide ? opt.beforeHide : beforeHide;
         afterShow = opt.afterShow ? opt.afterShow : afterShow;
         afterHide = opt.afterHide ? opt.afterHide : afterHide;
-        appendTarget = $.lStr.toDom(appendTarget);
+        appendTarget = $.lHelper.coverToDom(appendTarget);
     }
     var dCollapseContent = (function () {
         return $('<div></div>')
-            .lClass(contentName)
+            .lClass(contentClass)
+            .lClass(contentId)
             .html(content);
     })();
     var dCollapser = (function () {
@@ -175,13 +182,17 @@ $.fn.mCollapser = function (content, opt) {
             .css({
                 'padding': '10px'
             })
-            .lClass(selfId)
-            .lId(selfId + $.mCollapser.index);
+            .lClass(dCollapserClass)
+            .lClass(dCollapserIndexClass);
         return dCollapser;
     })();
 
-    self.lClass(sourceName);
-    appendTarget.lClass(targetName);
+    self
+        .lClass(sourceClass)
+        .lClass(sourceIndexClass);
+    appendTarget
+        .lClass(targetClass)
+        .lClass(targetIndexClass);
     appendTarget[append](dCollapser);
     if (!disableToggle) {
         self.css('cursor', cursor);

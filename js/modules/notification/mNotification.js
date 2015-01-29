@@ -1,6 +1,6 @@
 /**
  * The notification module
- * v2.0
+ * v2.1
  * @author Caro.Huang
  */
 
@@ -8,7 +8,6 @@ $.mNtfc = (function () {
     var self = {};
     var defStatus = 'info';
     var defDelay = 2000;
-
     /**
      * notification msg box
      * @param msg
@@ -122,7 +121,6 @@ $.mNtfc = (function () {
         dNtfcBox.showNtfcBox(iDelay);
         return dNtfcBox;
     };
-
     /**
      * show notification before target
      * @param msg
@@ -158,7 +156,6 @@ $.mNtfc = (function () {
         dNtfcBox.showNtfcBox(iDelay);
         return dNtfcBox;
     };
-
     /**
      * show notification after target
      * @param msg
@@ -194,7 +191,6 @@ $.mNtfc = (function () {
         dNtfcBox.showNtfcBox(iDelay);
         return dNtfcBox;
     };
-
     /**
      * convenient show msg for create
      * will not show msg, if callback-fn return false
@@ -218,7 +214,6 @@ $.mNtfc = (function () {
             self.show(errorMsg, 'wng');
         });
     };
-
     /**
      * convenient show msg for update
      * will not show msg, if callback-fn return false
@@ -242,7 +237,6 @@ $.mNtfc = (function () {
             self.show(errorMsg, 'wng');
         });
     };
-
     /**
      * convenient show msg for delete
      * will not show msg, if callback-fn return false
@@ -266,13 +260,44 @@ $.mNtfc = (function () {
             self.show(errorMsg, 'wng');
         });
     };
-
+    /**
+     * convenient show msg for send
+     * will not show msg, if callback-fn return false
+     * @param res
+     * @param [sucCb]
+     * @param [errCb]
+     */
+    self.showMsgAftSent = function (res, sucCb, errCb) {
+        var successMsg = $.lLang.parseLanPath('common.SentSuccess');
+        var errorMsg = $.lLang.parseLanPath('common.SentFailed');
+        $.lAjax.parseRes(res, function (result) {
+            if (sucCb && sucCb(result) === false) {
+                return;
+            }
+            self.show(successMsg, 'suc');
+        }, function (result) {
+            $.lConsole.log('$.mNtfc.showMsgAftSent get error:', result);
+            if (errCb && errCb(result) === false) {
+                return;
+            }
+            self.show(errorMsg, 'wng');
+        });
+    };
     /**
      * convenient show 'Sending Data' msg
      * @param [opt]
      */
-    self.showSendingMsg = function (opt) {
+    self.showSendingDataMsg = function (opt) {
         var langPath = 'common.SendingData';
+        var lang = $.lLang.parseLanPath(langPath);
+        self.show(lang, opt);
+    };
+    /**
+     * convenient show 'Sending' msg
+     * @param [opt]
+     */
+    self.showSendingMsg = function (opt) {
+        var langPath = 'common.Sending';
         var lang = $.lLang.parseLanPath(langPath);
         self.show(lang, opt);
     };

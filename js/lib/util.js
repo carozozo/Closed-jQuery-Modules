@@ -1,5 +1,5 @@
 /**
- * The util lib about web page handle
+ * The util lib
  * @author Caro.Huang
  */
 
@@ -11,10 +11,9 @@ $.lUtil = (function () {
      * @returns {boolean}
      */
     self.isLogon = function () {
-        // if user not logon $.tSysVars.userInfo = false
-        return $.tSysVars.userInfo !== false;
+        // if user not logon $.tSysVars.userInfo = null
+        return self.getUserInfo();
     };
-
     /**
      * check permission if in user's permissions
      * @param pms
@@ -40,20 +39,6 @@ $.lUtil = (function () {
         });
         return ret;
     };
-
-    /**
-     * auth user's permissions and go index page if no passed
-     * @param pms
-     * @returns {boolean}
-     */
-    self.goIndexIfAuthPmsFailed = function (pms) {
-        if (!self.authUserPms(pms)) {
-            self.goIndexPage();
-            return false;
-        }
-        return true;
-    };
-
     /**
      * check all DOM with attr [pms]
      * if user's permissions not including [pms] value, remove DOM
@@ -74,38 +59,22 @@ $.lUtil = (function () {
             }
         });
     };
-
     /**
-     * get preview page (by cookie)
-     * should like:{page:xxx,vars:xxx}
+     * get user-info obj
      * @returns {*}
      */
-    self.getPreviewPage = function () {
-        return $.lCookie.get('previewPage');
+    self.getUserInfo = function () {
+        return  $.tSysVars.userInfo;
     };
-
     /**
-     * set preview page (by cookie)
-     * @param page
-     * @param [vars]
+     * set user-info
+     * @param oUserInfo
      */
-    self.setPreviewPage = function (page, vars) {
-        var oPreviewPage = {
-            page: page,
-            vars: vars
-        };
-
-        // emit custom even
-        var emitObj = {previewPage: oPreviewPage};
-        if ($.lEventEmitter.emitEvent('befSetPreviewPage', emitObj) === false) {
-            return;
+    self.setUserInfo = function (oUserInfo) {
+        if ($.lHelper.isObj(oUserInfo)) {
+            $.tSysVars.userInfo = oUserInfo;
         }
-        $.lCookie.set('previewPage', oPreviewPage);
-        $.tSysVars.previewPage = oPreviewPage;
-        // emit custom even
-        $.lEventEmitter.emitEvent('aftSetPreviewPage', emitObj);
     };
-
     /**
      * login user
      * @param userName
@@ -130,16 +99,15 @@ $.lUtil = (function () {
             }
             $.lAjax.parseRes(res, function (result) {
                 // refresh system-vars
-                $.tSysVars = $.lObj.cloneObj(result);
+                $.tSysVars.updateSysVars(result);
                 sucFn = $.lHelper.executeIfFn(sucFn, result);
                 if (sucFn === false) {
                     // exit if sucFn return false
                     return;
                 }
-                var oPreviewPage = $.tSysVars.previewPage;
-                var page = oPreviewPage.page;
-                var vars = oPreviewPage.vars;
-                self.getPageSwitchBody(page, {vars: vars});
+                $.lPage.goPreViewPage({
+                    byDefault: true
+                });
             }, function (result) {
                 $.lHelper.executeIfFn(errFn, result);
             });
@@ -169,15 +137,13 @@ $.lUtil = (function () {
             }
             $.lAjax.parseRes(res, function (result) {
                 // refresh system-vars
-                $.tSysVars = result;
+                $.tSysVars.updateSysVars(result);
                 sucFn = $.lHelper.executeIfFn(sucFn, result);
                 if (sucFn === false) {
                     // exit if sucFn return false
                     return;
                 }
-                var oPreviewPage = $.tSysVars.previewPage;
-                var page = oPreviewPage.page;
-                self.getPageSwitchBody(page, {setPreviewPage: false}, function () {
+                $.lPage.goPreViewPage(null, function () {
                     $self.isLogouting = false;
                 });
             }, function (result) {
@@ -185,7 +151,6 @@ $.lUtil = (function () {
             });
         });
     };
-
     /**
      * get page content
      * @param page
@@ -199,8 +164,6 @@ $.lUtil = (function () {
             tplType: tplType,
             tplModel: tplModel
         };
-        console.log('page=',page)
-        console.log('opt=',opt)
         $.ajax.main.getPageAJ(opt, function (res) {
             $.lAjax.parseRes(res, function (html) {
                 sHtml = html;
@@ -208,7 +171,6 @@ $.lUtil = (function () {
         });
         return sHtml;
     };
-
     /**
      * get page content and switch to page
      * OPT
@@ -221,22 +183,20 @@ $.lUtil = (function () {
      * @param [cb]
      */
     self.getPageSwitch = function (page, opt, cb) {
-        var getPageOpt = {};
+        var optForGetPage = {};
         if (opt) {
-            getPageOpt.page = page;
-            getPageOpt.tplType = opt.tplType || 'empty';
-            getPageOpt.tplModel = opt.tplModel || null;
+            optForGetPage.page = page;
+            optForGetPage.tplType = opt.tplType || 'empty';
+            optForGetPage.tplModel = opt.tplModel || null;
         }
         // abort running ajax first, then get page and switch
         $.lAjax.abortRunningAjax();
-        $.ajax.main.getPageAsyncAJ(getPageOpt, function (res) {
+        $.ajax.main.getPageAsyncAJ(optForGetPage, function (res) {
             $.lAjax.parseRes(res, function (html) {
-                $.tSysVars.nowPage = page;
                 self.switchHtml(html, opt, cb);
             });
         });
     };
-
     /**
      * convenience setting for only get page content and input to target
      * @param page
@@ -249,126 +209,14 @@ $.lUtil = (function () {
         };
         self.getPageSwitch(page, tplOpt, cb);
     };
-
     /**
-     * convenience settings of $.lUtil.getPageSwitch
-     * target = #body
-     * tplType = 'content' ( the template including header and footer )
-     *
-     * OPT
-     * vars: obj (default: {}) - page-variables
-     * setPreviewPage: bool (default: true) - if set PreviewPage
-     *
+     * 之後要由 $.lPage.goPage 取代
      * @param page
-     * @param [opt]
-     * @param [cb]
+     * @param [pageOpt]
      */
-    self.getPageSwitchBody = function (page, opt, cb) {
-        var dBody = $('body');
-        var setPreviewPage = true;
-        var emitObj = {page: page};
-        var vars = {};
-        var tplOpt = {
-            tplType: 'content',
-            target: dBody
-        };
-
-        if ($.lHelper.isFn(opt)) {
-            cb = opt;
-            opt = null;
-        }
-        else if ($.lHelper.isObj(opt)) {
-            vars = opt.vars || vars;
-            setPreviewPage = opt.setPreviewPage !== false;
-        }
-
-        // emit custom even
-        if ($.lEventEmitter.emitEvent('befBodySwitch', emitObj) === false) {
-            return;
-        }
-
-        self.getPageSwitch(page, tplOpt, function () {
-            $.init.start();
-            if (setPreviewPage) {
-                self.setPreviewPage(page, vars);
-            }
-            cb && cb();
-            // emit custom even
-            $.lEventEmitter.emitEvent('aftBodySwitch', emitObj);
-        });
+    self.goPage = function (page, pageOpt) {
+        $.lPage.goPage(page, pageOpt);
     };
-
-    /**
-     * convenience settings of $.lUtil.getPageSwitchTarget
-     * target = #container
-     *
-     * OPT
-     * vars: obj (default: {}) - page-variables
-     * setPreviewPage: bool (default: true) - if set PreviewPage
-     *
-     * @param page
-     * @param [opt]
-     * @param [cb]
-     */
-    self.getPageSwitchContainer = function (page, opt, cb) {
-        var dContainer = $('#container');
-        var setPreviewPage = true;
-        var emitObj = {page: page};
-        var vars = {};
-
-        if ($.lHelper.isFn(opt)) {
-            cb = opt;
-            opt = null;
-        }
-        else if ($.lHelper.isObj(opt)) {
-            vars = opt.vars || vars;
-            setPreviewPage = opt.setPreviewPage !== false;
-        }
-
-        // emit custom even
-        if ($.lEventEmitter.emitEvent('befContainerSwitch', emitObj) === false) {
-            return;
-        }
-
-        self.getPageSwitchTarget(page, dContainer, function () {
-            $.lLang.switchLang(dContainer);
-            if (setPreviewPage) {
-                self.setPreviewPage(page, vars);
-            }
-            cb && cb();
-            $.lEventEmitter.emitEvent('aftContainerSwitch', emitObj)
-        });
-    };
-
-    /**
-     * convenience settings of $.lUtil.getPageSwitchContainer
-     * use pageId to get $.tPageInfo that set, then go and init page
-     *
-     * @param page
-     * @param [vars]
-     */
-    self.goPage = function (page, vars) {
-        var pageInfo = $.tPageInfo[page];
-        // title is lang-path
-        var title = pageInfo.title;
-        var initFn = pageInfo.initFn;
-        var opt = {
-            vars: vars
-        };
-        self.getPageSwitchContainer(page, opt, function () {
-            initFn && initFn(vars);
-            $('title').lSetLang(title);
-        });
-    };
-
-    /**
-     * go Index-page by switch-container
-     */
-    self.goIndexPage = function () {
-        var indexPage = $.tSysVars.indexPage;
-        self.goPage(indexPage);
-    };
-
     /**
      * switch page with fade animation
      * OPT
@@ -397,7 +245,6 @@ $.lUtil = (function () {
             }, 1);
         });
     };
-
     self.showLoading = function () {
         $.fancybox.helpers.overlay.open({
             parent: 'body',
@@ -405,7 +252,6 @@ $.lUtil = (function () {
         });
         $.fancybox.showLoading();
     };
-
     self.hideLoading = function () {
         $.fancybox.helpers.overlay.close();
         $.fancybox.hideLoading();

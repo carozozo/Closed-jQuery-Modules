@@ -4,16 +4,16 @@
  */
 
 //function i18n() {
-tla.mSetLanguage = {};
+$.tLan.mSetLanguage = {};
 
-tla.mSetLanguage.en_us = {
+$.tLan.mSetLanguage.en_us = {
     choiceLan: 'Language'
 };
 
-tla.mSetLanguage.zh_cn = {
+$.tLan.mSetLanguage.zh_cn = {
     choiceLan: '选择语言'
 };
 
-tla.mSetLanguage.zh_tw = {
+$.tLan.mSetLanguage.zh_tw = {
     choiceLan: '選擇語言'
 };
