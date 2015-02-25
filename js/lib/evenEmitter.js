@@ -86,7 +86,7 @@ $.lEventEmitter = (function () {
         if (opt) {
             source = opt.source || source;
         }
-        source = $.lStr.toDom(source);
+        source = $.lHelper.coverToDom(source);
         emitName = emitName + '.' + nameSpace;
 
         if (source) {

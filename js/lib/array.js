@@ -19,10 +19,6 @@ $.lArr = (function () {
             arr1.push(eachVal);
         });
     };
-    /**
-     * clone array
-     * @returns {Array}
-     */
     self.cloneArr = function (arr) {
         return $.extend(true, [], arr);
     };
@@ -68,15 +64,14 @@ $.lArr = (function () {
         return arr;
     };
     /**
-     * remove array element by value
+     * remove the item from array
      * @param arr
      * @param val
+     * @returns {*}
      */
-    self.removeByArrValue = function (arr, val) {
-        var i = arr.indexOf(val);
-        if (i > -1) {
-            arr.splice(i, 1);
-        }
+    self.removeByArrVal = function (arr, val) {
+        var index = arr.indexOf(val);
+        return self.removeByIndex(arr, index);
     };
     /**
      * remove duplicate value in arr
@@ -85,11 +80,6 @@ $.lArr = (function () {
     self.removeDup = function (arr) {
         var aUnique = $.lArr.cloneArr(arr);
         return $.unique(aUnique);
-//        var aUnique = [];
-//        $.each(arr, function (i, el) {
-//            ($.inArray(el, aUnique) === -1) && aUnique.push(el);
-//        });
-//        return aUnique;
     };
     /**
      * add the val into array if not exists
@@ -98,10 +88,7 @@ $.lArr = (function () {
      * @returns {*}
      */
     self.pushNoDup = function (arr, val) {
-        var index = arr.indexOf(val);
-        if (index < 0) {
-            arr.push(val);
-        }
+        (arr.indexOf(val) < 0) && arr.push(val);
         return arr;
     };
     self.pushNoEmpty = function (arr, val) {

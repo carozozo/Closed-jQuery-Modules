@@ -117,6 +117,11 @@ $.fn.mBtn = function (type, opt, clickFn) {
             icon = 'remove';
             langPath = 'Close';
             btnClass = 'danger';
+        },
+        refund: function () {
+            icon = 'share-alt';
+            langPath = 'Refund';
+            btnClass = 'warning';
         }
     };
 

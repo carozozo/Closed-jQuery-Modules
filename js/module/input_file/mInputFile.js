@@ -44,12 +44,12 @@ $.fn.mInputFile = function (opt) {
             i = dInputFileItem.index();
             if (i % 2 === 0) {
                 dInputFileItem
-                    .removeClass('basic-color-green')
-                    .lClass('basic-color-blue');
+                    .removeClass('text-success')
+                    .lClass('text-primary');
             } else {
                 dInputFileItem
-                    .removeClass('basic-color-blue')
-                    .lClass('basic-color-green');
+                    .removeClass('text-primary')
+                    .lClass('text-success');
             }
             dInputFileItem.dInputFileIndex.html(i + 1 + '.');
         });
@@ -349,7 +349,7 @@ $.fn.mInputFile = function (opt) {
         var inputFileCover = $('<div></div>').lClass('inputFileCover');
         var dDescriptionSpan = $.lDom.createLangSpan('mInputFile.description');
         inputFileCover
-            .lClass('form-control basic-color-gray2 basic-link')
+            .lClass('form-control basic-color-gray basic-link')
             .append(dDescriptionSpan)
             .action('click.mInputFile', function () {
                 cleanInputFile();

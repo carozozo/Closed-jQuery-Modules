@@ -5,18 +5,20 @@
 
 $.lAjax = (function () {
     var self = {};
-    self.aRunningAjax = [];
-
+    var aRunningAjax = [];
+    self.addRunningAjax = function (ajaxObj) {
+        aRunningAjax.push(ajaxObj);
+    };
     /**
      * abort running ajax in $.lAjax.aRunningAjax
      */
     self.abortRunningAjax = function () {
-        $.each(self.aRunningAjax, function (i, runningAjax) {
-            runningAjax.abort();
+        $.each(aRunningAjax, function (i, runningAjax) {
+            $.lHelper.isObj(runningAjax) && runningAjax.readyState !== 4 &&
+                $.lHelper.isFn(runningAjax.abort) && runningAjax.abort();
         });
-        self.aRunningAjax = [];
+        aRunningAjax = [];
     };
-
     /**
      * validate ajax call if been reject and logout
      * show error-msg if server no response
@@ -36,7 +38,7 @@ $.lAjax = (function () {
                 return;
             }
             if (responseJSON.__rej) {
-                $.lPage.goIndexPage();
+//                $.lPage.goIndexPage();
                 return;
             }
             if (settings.url !== '/main/html/getPage')
@@ -54,7 +56,6 @@ $.lAjax = (function () {
             $.lConsole.error('ajaxError exception=' + exception + ', url=' + url);
         });
     };
-
     /**
      * parse ajax response, do function if success or error(for OA client server)
      *
@@ -98,6 +99,63 @@ $.lAjax = (function () {
         }
         errCb && errCb(result);
     };
-
+    /**
+     * set obj/input-files to formData
+     * Note: DO NOT set input-files to obj, will cause exception
+     * EX.
+     * var fileList = e.target.files;
+     * var obj = {
+     *      files: fileList
+     * };
+     * => cause exception
+     * @param opt
+     * @param files
+     * @returns {FormData}
+     */
+    self.coverToFormData = function (opt, files) {
+        var formData = new FormData();
+        $.each(opt, function (key, val) {
+            formData.append(key, val);
+        });
+        $.each(files, function (key, val) {
+            formData.append(key, val);
+        });
+        return formData;
+    };
     return self;
 })();
+//$.runAjax = function () {
+//    var aArg = [];
+//    var ajaxFn = null;
+//    var async = false;
+//    $.each(arguments, function (i, arg) {
+//        if (i === 0) {
+//            if ($.lHelper.isBool(arg)) {
+//                async = arg === true;
+//                return;
+//            }
+//            if ($.lHelper.isFn(arg)) {
+//                ajaxFn = arg;
+//            }
+//            return;
+//        }
+//        if (i === 1 && !ajaxFn && $.lHelper.isFn(arg)) {
+//            ajaxFn = arg;
+//            return;
+//        }
+//        aArg.push(arg);
+//    });
+//    if (!ajaxFn) {
+//        return;
+//    }
+//    var ajaxOpt = ajaxFn.apply(ajaxFn, aArg);
+//    if (!$.lHelper.isObj(ajaxOpt)) {
+//        return;
+//    }
+//    ajaxOpt.async = async;
+//    var ajaxObj = $.ajax(ajaxOpt);
+//    if (!async) {
+//        return;
+//    }
+//    $.lAjax.addRunningAjax(ajaxObj);
+//};

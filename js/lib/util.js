@@ -11,7 +11,6 @@ $.lUtil = (function () {
      * @returns {boolean}
      */
     self.isLogon = function () {
-        // if user not logon $.tSysVars.userInfo = null
         return self.getUserInfo();
     };
     /**
@@ -20,7 +19,7 @@ $.lUtil = (function () {
      * @returns {boolean}
      */
     self.authUserPms = function (pms) {
-        var userPms = $.tSysVars.userPms;
+        var userPms = $.lSysVar.getSysVar('userPms');
         if (!userPms) {
             return false;
         }
@@ -44,7 +43,7 @@ $.lUtil = (function () {
      * if user's permissions not including [pms] value, remove DOM
      */
     self.checkPms = function (target) {
-        target = $.lStr.toDom(target);
+        target = $.lHelper.coverToDom(target);
         if (target) {
             target = target.find('[pms]');
         } else {
@@ -64,16 +63,15 @@ $.lUtil = (function () {
      * @returns {*}
      */
     self.getUserInfo = function () {
-        return  $.tSysVars.userInfo;
+        return $.lSysVar.getSysVar('userInfo');
     };
     /**
      * set user-info
      * @param oUserInfo
      */
     self.setUserInfo = function (oUserInfo) {
-        if ($.lHelper.isObj(oUserInfo)) {
-            $.tSysVars.userInfo = oUserInfo;
-        }
+        if (!$.lHelper.isObj(oUserInfo)) return;
+        $.lSysVar.setSysVar('userInfo', oUserInfo);
     };
     /**
      * login user
@@ -99,7 +97,7 @@ $.lUtil = (function () {
             }
             $.lAjax.parseRes(res, function (result) {
                 // refresh system-vars
-                $.tSysVars.updateSysVars(result);
+                $.lSysVar.updateSysVars(result);
                 sucFn = $.lHelper.executeIfFn(sucFn, result);
                 if (sucFn === false) {
                     // exit if sucFn return false
@@ -114,11 +112,9 @@ $.lUtil = (function () {
         });
     };
     /**
-     * logout user and delete uid, pms property
-     * @param [sucFn]
-     * @param [errFn]
+     * logout user
      */
-    self.logout = function (sucFn, errFn) {
+    self.logout = function () {
         var $self = this;
         // in case repeat-called
         if ($self.isLogouting) {
@@ -131,118 +127,12 @@ $.lUtil = (function () {
         }
         $.lAjax.abortRunningAjax();
         $.ajax.main.logoutAJ(function (res) {
-            // emit custom even
-            if ($.lEventEmitter.emitEvent('aftLogout') === false) {
-                return;
-            }
-            $.lAjax.parseRes(res, function (result) {
-                // refresh system-vars
-                $.tSysVars.updateSysVars(result);
-                sucFn = $.lHelper.executeIfFn(sucFn, result);
-                if (sucFn === false) {
-                    // exit if sucFn return false
-                    return;
-                }
-                $.lPage.goPreViewPage(null, function () {
-                    $self.isLogouting = false;
-                });
-            }, function (result) {
-                $.lHelper.executeIfFn(errFn, result);
+            $self.isLogouting = false;
+            location.reload(true);
+            $.lAjax.parseRes(res, function () {
+            }, function () {
+                $.lConsole.log('$.lUtil.logout error');
             });
-        });
-    };
-    /**
-     * get page content
-     * @param page
-     * @param [tplType]
-     * @param [tplModel]
-     */
-    self.getPageHtml = function (page, tplType, tplModel) {
-        var sHtml = '';
-        var opt = {
-            page: page,
-            tplType: tplType,
-            tplModel: tplModel
-        };
-        $.ajax.main.getPageAJ(opt, function (res) {
-            $.lAjax.parseRes(res, function (html) {
-                sHtml = html;
-            });
-        });
-        return sHtml;
-    };
-    /**
-     * get page content and switch to page
-     * OPT
-     * target: DOM/str (default: null) - the target that content input to
-     * tplType: str (default: empty) - the template-type
-     * tplModel: obj (default: null) - the model for template
-     *
-     * @param page
-     * @param [opt]
-     * @param [cb]
-     */
-    self.getPageSwitch = function (page, opt, cb) {
-        var optForGetPage = {};
-        if (opt) {
-            optForGetPage.page = page;
-            optForGetPage.tplType = opt.tplType || 'empty';
-            optForGetPage.tplModel = opt.tplModel || null;
-        }
-        // abort running ajax first, then get page and switch
-        $.lAjax.abortRunningAjax();
-        $.ajax.main.getPageAsyncAJ(optForGetPage, function (res) {
-            $.lAjax.parseRes(res, function (html) {
-                self.switchHtml(html, opt, cb);
-            });
-        });
-    };
-    /**
-     * convenience setting for only get page content and input to target
-     * @param page
-     * @param target
-     * @param [cb]
-     */
-    self.getPageSwitchTarget = function (page, target, cb) {
-        var tplOpt = {
-            target: target
-        };
-        self.getPageSwitch(page, tplOpt, cb);
-    };
-    /**
-     * 之後要由 $.lPage.goPage 取代
-     * @param page
-     * @param [pageOpt]
-     */
-    self.goPage = function (page, pageOpt) {
-        $.lPage.goPage(page, pageOpt);
-    };
-    /**
-     * switch page with fade animation
-     * OPT
-     * target: DOM/str (default: $('body')) - the target that html code input
-     * @param html
-     * @param [opt]
-     * @param [cb]
-     */
-    self.switchHtml = function (html, opt, cb) {
-        var target = $('body');
-        if ($.lHelper.isFn(opt)) {
-            cb = opt;
-            opt = null;
-        }
-        if (opt) {
-            target = opt.target || target;
-            target = $.lStr.toDom(target);
-        }
-
-        target.fadeOut(function () {
-            target.html(html);
-            self.checkPms(target);
-            target.fadeIn();
-            setTimeout(function () {
-                cb && cb();
-            }, 1);
         });
     };
     self.showLoading = function () {

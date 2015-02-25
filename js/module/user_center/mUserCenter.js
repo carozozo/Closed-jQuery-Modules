@@ -33,8 +33,7 @@ $.mUserCenter = function () {
         }
         dUserInfo.html(dUserInfo.pageHtml);
         var setForm = function () {
-            // after createChecker dForm has mFormChecker-mFormChecker
-            dForm.removeCheckerClass();
+            formChecker.removeCheckerClass();
             $.lForm.clean(dForm);
             var oUserInfo = $.lUtil.getUserInfo();
             // auto mapping the value to form-Dom
@@ -70,15 +69,15 @@ $.mUserCenter = function () {
         (function dSubmitBtn() {
             var dSubmitBtn = dForm.find('#submitBtn');
             dSubmitBtn.mBtn('submit', function () {
-                var pass = dForm.checkForm();
+                var pass = formChecker.checkForm();
                 if (!pass) {
                     return;
                 }
-                var mUserUpdate = $.tMod.mUserCenter.userUpdate();
-                dForm.mapModel(mUserUpdate, function () {
-                    $.ajax.user.updateUserAndSetInfoAJ(mUserUpdate, function (res) {
+                var opt = $.tMod.mUserCenter.userUpdate();
+                dForm.mapModel(opt, function () {
+                    $.ajax.user.updateUserAndSetInfoAJ(opt, function (res) {
                         $.mNtfc.showMsgAftUpdate(res, function (result) {
-                            // result is updated user info, set to $.tSysVars.userInfo
+                            // result is updated user info
                             $.lUtil.setUserInfo(result);
                             var greetingLang = greetingLangFn(dDisplayName.val());
                             var dTabTitle = $.mNav.getTabTitle('userCenter');
@@ -103,16 +102,17 @@ $.mUserCenter = function () {
             return dRevertBtn;
         })();
 
-        (function createChecker() {
-            dForm.mFormChecker({
+        var formChecker = (function () {
+            var formChecker = $.mFormChecker({
                 useTip: false
             });
-            dForm.addRequired([dDisplayName]);
-            dForm.addMinLength(dPwd, 8);
-            dForm.addEmail(dEmail);
-            dForm.addEqual(dCheckPwd, dPwd, function () {
+            formChecker.addRequired([dDisplayName]);
+            formChecker.addMinLength(dPwd, 8);
+            formChecker.addEmail(dEmail);
+            formChecker.addEqual(dCheckPwd, dPwd, function () {
                 return  $.lLang.parseLanPath(dUserInfoLangPathRoot + 'ChangePwd');
             });
+            return formChecker;
         })();
         (function setHook() {
             // change dialog-ui title when switch lang

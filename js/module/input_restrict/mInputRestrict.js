@@ -126,6 +126,13 @@ $.fn.mInputRestrict = function (type, opt) {
         num: function () {
             self.numeric(opt);
         },
+        engNum: function () {
+            var engNumOpt = {
+                allowOtherCharSets: false
+            };
+            $.extend(engNumOpt, opt);
+            self.alphanum(engNumOpt);
+        },
         /**
          * basic input restriction
          */

@@ -230,7 +230,7 @@ $.fn.mConfirmBox = function (opt) {
         if (showTopLine) {
             dConfirmTop.css({
                 'border-bottom': '3px solid',
-                'border-bottom-color': $.lColorStyle.getColor('gray', 2)
+                'border-bottom-color': $.lStyle.getColor('gray', 2)
             });
         }
         return dConfirmTop;
@@ -254,12 +254,12 @@ $.fn.mConfirmBox = function (opt) {
     var dConfirmTitle = (function () {
         return $('<span></span>')
             .lId(selfId + 'Title')
-            .lClass('basic-color-green');
+            .lClass('text-success');
     })();
     var dConfirmMsg = (function () {
         return $('<span></span>')
             .lId(selfId + 'Msg')
-            .lClass('basic-color-gray2');
+            .lClass('basic-color-gray');
     })();
     var dConfirmBtnYes = (function () {
         var dConfirmBtnYes = $('<button></button>')

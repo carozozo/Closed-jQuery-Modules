@@ -53,26 +53,76 @@ $.lObj = (function () {
         return objRet;
     };
 
-    /**
-     * get the length of an object
-     * @param obj
-     * @returns {Number}
-     */
     self.getObjLength = function (obj) {
         return Object.keys(obj).length;
     };
     /**
-     * extend obj similar jQuery $.extend, but no modify original obj
+     * extend obj similar jQuery.extend
      * @param obj1
      * @param obj2
+     * @param [deep]
      * @returns {*}
      */
-    self.extendObj = function (obj1, obj2) {
-        var obj = $.extend(true, {}, obj1);
-        return $.extend(true, obj, obj2);
+    self.extendObj = function (obj1, obj2, deep) {
+        deep = deep !== false;
+        return $.extend(deep, obj1, obj2);
     };
-    self.cloneObj = function (obj) {
-        return $.extend(true, {}, obj);
+    /**
+     * clone obj, if deep !== false, will clone all under obj
+     * @returns {*}
+     * @param obj
+     * @param [deep]
+     */
+    self.cloneObj = function (obj, deep) {
+        deep = deep !== false;
+        return $.extend(deep, {}, obj);
+    };
+    /**
+     * extract obj-value by key
+     * EX.
+     * obj = { a:{}, b:'b', c:{ cc:'' } }
+     * obj2 = extractByObjKey(obj,'a,c') or extractByObjKey(obj,['a', 'c'])
+     * => obj = { b:'b' } , obj2 = { a:{}, c:{ cc:'' } }
+     * @param obj
+     * @param keys
+     * @returns {{}}
+     */
+    self.extractByObjKey = function (obj, keys) {
+        keys = $.lStr.splitStr(keys, ',');
+        var obj2 = {};
+        $.each(keys, function (i, key) {
+            obj2[key] = obj[key];
+            delete obj[key];
+        });
+        return obj2;
+    };
+    /**
+     * copy obj-value by key
+     * EX.
+     * obj1={ a:'a', b:'b', c:'c' }
+     * obj2={ a:'aa'}
+     * copyByObjKey(obj1,obj2, 'a,b')
+     * => obj2={ a:'a', b:'b' }
+     * @param obj1
+     * @param obj2
+     * @param keys
+     * @param [opt]
+     * @returns {*}
+     */
+    self.copyByObjKey = function (obj1, obj2, keys, opt) {
+        var useClone = false;
+        if (opt) {
+            useClone = opt.useClone === true;
+        }
+        keys = $.lStr.splitStr(keys, ',');
+        $.each(keys, function (i, key) {
+            if (!useClone) {
+                obj2[key] = obj1[key];
+                return;
+            }
+            obj2[key] = self.cloneObj(obj1[key]);
+        });
+        return obj2;
     };
     /**
      * replace key in object
@@ -81,12 +131,12 @@ $.lObj = (function () {
      *
      * EX1
      * var obj = {a:1, b:2};
-     * $.lObj.replaceObjKey(obj, 'a', 'c');
+     * replaceObjKey(obj, 'a', 'c');
      * => obj = {c:1, b:2}
      *
      * EX2
      * var obj1 = {a:1, b:2};
-     * var obj2 = $.lObj.replaceObjKey(obj, 'a','c',{useClone:true});
+     * var obj2 = replaceObjKey(obj, 'a','c',{useClone:true});
      * => obj1 = {a:1, b:2};
      * => obj2 = {c:1, b:2}
      *
@@ -113,16 +163,16 @@ $.lObj = (function () {
     };
     /**
      * replace key in object by keyMaps
-     * OPT is same as [$.lObj.replaceObjKey]
+     * OPT is same as [replaceObjKey]
      *
      * EX1
      * var obj = {a:1, b:2};
-     * $.lObj.replaceObjKey(obj, [['a', 'c'],['b', 'd']]);
+     * replaceObjKey(obj, [['a', 'c'],['b', 'd']]);
      * => obj = {c:1, d:2}
      *
      * EX2
      * var obj1 = {a:1, b:2};
-     * var obj2 = $.lObj.replaceObjKey(obj, [['a', 'c'],['b', 'd']],{useClone:true});
+     * var obj2 = replaceObjKey(obj, [['a', 'c'],['b', 'd']],{useClone:true});
      * => obj1 = {a:1, b:2};
      * => obj2 = {c:1, d:2}
      *
@@ -152,12 +202,72 @@ $.lObj = (function () {
         return obj;
     };
     /**
+     * cover undefined to assigned-value
+     * OPT
+     * deep: bool (default: true) - if cover for loop
+     * clone: bool (default: false) - if clone-object(will not change origin-object)
+     *
+     * EX
+     * obj= { a: undefined, b: 'bb'}
+     * coverUndefinedInObj(obj, null)
+     * => obj= { a: null, b: 'bb'}
+     * @param obj
+     * @param [coverVal]
+     * @param [opt]
+     */
+    self.coverUndefinedInObj = function (obj, coverVal, opt) {
+        coverVal = (coverVal !== undefined) ? coverVal : null;
+        var oClone = obj;
+        var deep = true;
+        var clone = false;
+        if (opt) {
+            deep = opt.deep !== false;
+            clone = opt.clone === true;
+        }
+        if (clone) {
+            oClone = self.cloneObj(obj);
+        }
+        var coverObjVal = function (o) {
+            $.each(o, function (key, val) {
+                if ($.lHelper.isObj(val) && deep) {
+                    coverObjVal(val);
+                    return;
+                }
+                // cover undefined
+                if (val === undefined) {
+                    o[key] = coverVal;
+                }
+            });
+        };
+        coverObjVal(oClone);
+        return oClone;
+    };
+    self.trimObjVal = function (obj, opt) {
+        var useClone = false;
+        var objRet = obj;
+        if (opt) {
+            useClone = opt.useClone === true;
+        }
+        if (useClone) {
+            objRet = self.cloneObj(obj);
+        }
+        $.each(objRet, function (key, val) {
+            if ($.lHelper.isObj(val)) {
+                objRet[key] = self.trimObjVal(val, opt);
+            }
+            if ($.lHelper.isStr(val)) {
+                objRet[key] = val.trim();
+            }
+        });
+        return objRet;
+    };
+    /**
      * check if key exists in obj
      * EX
      * a= { key1: 1, key2: 2};
-     * $.lObj.keyInObj(a, 'key1') => true
-     * $.lObj.keyInObj(a, ['key1','key2']) => true
-     * $.lObj.keyInObj(a, ['key1','key3']) => false
+     * keyInObj(a, 'key1') => true
+     * keyInObj(a, ['key1','key2']) => true
+     * keyInObj(a, ['key1','key3']) => false
      *
      * @param obj
      * @param aKey
@@ -179,9 +289,9 @@ $.lObj = (function () {
      * get keys in obj, and get all if level = 0
      * EX.
      * obj={a:'1', b:'2', c:'3', obj1:{ aa:'4',bb:'5'}}
-     * $.lObj.getKeysInObj(obj);
+     * getKeysInObj(obj);
      * =>['a','b','c','obj1']
-     * $.lObj.getKeysInObj(obj,0);
+     * getKeysInObj(obj,0);
      * =>['a','b','c','obj1','aa','bb']
      * @param obj
      * @param [levelLimit]

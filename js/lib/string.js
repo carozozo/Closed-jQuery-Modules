@@ -9,29 +9,33 @@ $.lStr = (function () {
     var self = {};
     var changeCase = function (str, type, opt) {
         var aType = ['toUpperCase', 'toLowerCase'];
-        var startIndex = null;
-        var endIndex = null;
+        var start = null;
+        var end = null;
         var force = true;
         if (opt) {
-            startIndex = opt.startIndex || startIndex;
-            endIndex = opt.endIndex || endIndex;
+            start = !$.lHelper.isEmptyVal(opt.start) ? opt.start : start;
+            end = opt.end || end;
             force = opt.force !== false;
         }
-        if (!$.lHelper.isStr(str) && !force) {
-            return str;
+        if (!$.lHelper.isStr(str)) {
+            if (!force) {
+                return str;
+            }
+            str = '';
         }
         type = (aType.indexOf(type) > -1) ? type : aType[0];
-        startIndex = $.lHelper.coverToInt(startIndex);
-        endIndex = $.lHelper.coverToInt(endIndex);
-        str = str || '';
-        if (!startIndex) {
+        if ($.lHelper.isEmptyVal(start)) {
             return str[type]();
         }
         var ret = [];
-        ret.push(str.slice(0, startIndex));
-        ret.push((str.slice(startIndex, endIndex))[type]());
-        if (startIndex && endIndex) {
-            ret.push(str.slice(endIndex));
+        start = $.lHelper.coverToInt(start);
+        end = $.lHelper.coverToInt(end);
+        ret.push(str.slice(0, start));
+        if (end) {
+            ret.push((str.slice(start, end))[type]());
+            ret.push(str.slice(end));
+        } else {
+            ret.push((str.slice(start))[type]());
         }
         return ret.join('');
     };
@@ -89,31 +93,42 @@ $.lStr = (function () {
     self.isUppercase = function (str) {
         return validator.isUppercase(str);
     };
+    self.isLowercase = function (str) {
+        return validator.isLowercase(str);
+    };
     /**
      * check the string if Json type
      * @param str
      * @returns {boolean}
      */
     self.isJson = function (str) {
-        if (!$.lHelper.isStr(str)) return false;
-        try {
-            JSON.parse(str);
-        } catch (e) {
-            return false;
-        }
-        return true;
+        return validator.isJSON(str);
     };
-
-
     /**
-     * cover str to DOM
+     * check if all chart is eng-letter
+     * EX.
+     * isEngLetter('abc') => true
+     * isEngLetter('aa123') => false
      * @param str
-     * @returns {*}
+     * @returns {boolean}
      */
-    self.toDom = function (str) {
-        if ($.lHelper.isStr(str)) {
-            return $('#' + str);
-        }
+    self.isEngLetter = function (str) {
+        if (!$.lHelper.isStr(str)) return false;
+        str = str.replace(/[a-zA-Z]/g, '');
+        return str === '';
+    };
+    self.isEngNum = function (str) {
+        if (!$.lHelper.isStr(str)) return false;
+        str = str.replace(/[a-zA-Z]/g, '');
+        return self.isInt(str);
+    };
+    /**
+     * check str if "true"/"false" and covert to boolean, no change otherwise
+     * @param str
+     * @returns {boolean}
+     */
+    self.toBool = function (str) {
+        str = (str == 'true') ? true : ((str == 'false') ? false : str);
         return str;
     };
     /**
@@ -123,12 +138,10 @@ $.lStr = (function () {
      * @returns {*}
      */
     self.addHead = function (str, addStr) {
-        try {
-            var index = str.indexOf(addStr);
-            if (index !== 0) {
-                str = addStr + str;
-            }
-        } catch (e) {
+        if (!$.lHelper.isStr(str)) return str;
+        var index = str.indexOf(addStr);
+        if (index !== 0) {
+            str = addStr + str;
         }
         return str;
     };
@@ -139,22 +152,14 @@ $.lStr = (function () {
      * @returns {*}
      */
     self.addTail = function (str, addStr) {
-        try {
-            var index = str.lastIndexOf(addStr);
-            if (index !== str.length - addStr.length) {
-                str += addStr;
-            }
-        } catch (e) {
+        if (!$.lHelper.isStr(str)) return str;
+        var index = str.lastIndexOf(addStr);
+        var strLength = str.length;
+        var addLength = addStr.length;
+        if (strLength < addLength || index !== strLength - addLength) {
+            str += addStr;
         }
         return str;
-    };
-    /**
-     * upper case first char of string
-     * @param str
-     * @returns {string}
-     */
-    self.upperFirst = function (str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
     };
     /**
      * replace the \n(from client) to <br/>
@@ -162,6 +167,7 @@ $.lStr = (function () {
      * @returns {*|string}
      */
     self.wrapToBr = function (str) {
+        if (!$.lHelper.isStr(str)) return str;
         return str.replace(/\n/g, '<br />');
     };
     /**
@@ -170,8 +176,41 @@ $.lStr = (function () {
      * @returns {*|string}
      */
     self.brToWrap = function (str) {
+        if (!$.lHelper.isStr(str)) return str;
         var regex = /<br\s*[\/]?>/gi;
         return str.replace(regex, '\n');
+    };
+    /**
+     * split to array by '\n' '\r' '\r\n'
+     * OPT
+     * acceptEmpty: bool (default: false) - if still return array when str is empty
+     *
+     * @param str
+     * @param [opt]
+     * @returns {*}
+     */
+    self.splitByWrap = function (str, opt) {
+        if (!$.lHelper.isStr(str)) return str;
+        var acceptEmpty = false;
+        if (opt) {
+            acceptEmpty = opt.acceptEmpty === true;
+        }
+        if (!acceptEmpty && !str) {
+            return null;
+        }
+        var wrap = '\n';
+        if (str.indexOf(wrap) > -1) {
+            return str.split(wrap);
+        }
+        wrap = '\r';
+        if (str.indexOf(wrap) > -1) {
+            return str.split(wrap);
+        }
+        wrap = '\r\n';
+        if (str.indexOf(wrap) > -1) {
+            return str.split(wrap);
+        }
+        return [str];
     };
     /**
      * escape RegExp
@@ -179,6 +218,7 @@ $.lStr = (function () {
      * @returns {*|string}
      */
     self.escapeRegExp = function (str) {
+        if (!$.lHelper.isStr(str)) return str;
         return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
     };
     /**
@@ -189,6 +229,7 @@ $.lStr = (function () {
      * @returns {*|string}
      */
     self.replaceAll = function (str, find, replace) {
+        if (!$.lHelper.isStr(str)) return str;
         find = self.escapeRegExp(find);
         var regex = new RegExp(find, 'g');
         return str.replace(regex, replace);
@@ -254,6 +295,7 @@ $.lStr = (function () {
      * @returns {string}
      */
     self.insertBlankBefUpper = function (str) {
+        if (!$.lHelper.isStr(str)) return str;
         var indexCount = 0;
         var aStr = str.split('');
         var aStrClone = $.lArr.cloneArr(aStr);
@@ -271,6 +313,13 @@ $.lStr = (function () {
     };
     self.upperStr = function (str, opt) {
         return changeCase(str, 'upperCase', opt);
+    };
+    self.upperFirst = function (str) {
+        if (!$.lHelper.isStr(str)) return str;
+        return self.upperStr(str, {
+            start: 0,
+            end: 1
+        })
     };
     self.lowerStr = function (str, opt) {
         return changeCase(str, 'toLowerCase', opt);

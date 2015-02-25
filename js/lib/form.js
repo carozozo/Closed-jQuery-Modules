@@ -16,7 +16,7 @@ $.lForm = (function () {
      */
     self.clean = function () {
         var dom = arguments[0];
-        dom = $.lStr.toDom(dom);
+        dom = $.lHelper.coverToDom(dom);
 
         // clear input
         dom.find('input').each(function () {
@@ -65,7 +65,7 @@ $.lForm = (function () {
             coverEmpty = opt.coverEmpty !== false;
             extendModel = opt.extendModel || extendModel;
         }
-        dom = $.lStr.toDom(dom);
+        dom = $.lHelper.coverToDom(dom);
         dom.find('input, select, textarea').each(function () {
             var self = $(this);
             var domId = self.lId();

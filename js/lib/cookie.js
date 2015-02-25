@@ -6,13 +6,17 @@
 
 $.lCookie = (function () {
     var self = {};
-    var host = $.tSysVars.host || 'host';
+    var getHost = function () {
+        return $.lSysVar.getSysVar('host') || 'localhost';
+    };
+
     /**
      * get cookie value by key
      * @param key
      * @returns {*}
      */
     self.get = function (key) {
+        var host = getHost();
         if (key) {
             key = host + '-' + key;
             var cookie = $.cookie(key);
@@ -24,13 +28,13 @@ $.lCookie = (function () {
         }
         return $.cookie;
     };
-
     /**
      * set value to cookie
      * @param key
      * @param val
      */
     self.set = function (key, val) {
+        var host = getHost();
         if ($.lHelper.isObj(val) || $.lHelper.isArr(val)) {
             try {
                 val = JSON.stringify(val);

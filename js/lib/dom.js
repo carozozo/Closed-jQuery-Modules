@@ -143,7 +143,7 @@ $.fn.enable = function () {
  * disable the DOM
  */
 $.fn.disable = function () {
-    this.prop('checked', true);
+    this.prop('disabled', true);
     return this;
 };
 $.fn.setChecked = function (bool) {

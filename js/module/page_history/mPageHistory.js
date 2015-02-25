@@ -188,7 +188,7 @@ $.mPageHistory = (function () {
                 },
                 cb: function (dItem) {
                     dItem.css('color', '#ffffff');
-                    dItem.lClass('basic-bg-gray2');
+                    dItem.lClass('basic-bg-gray');
                 }
             });
 

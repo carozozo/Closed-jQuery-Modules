@@ -3,17 +3,16 @@
  * @author Caro.Huang
  */
 
-$(window).on('resize', function () {
-    $.lWindow.setContainerMarginTop();
-});
-$.lEventEmitter.hookEvent('aftContainerSwitch', 'lWindow', function (e) {
-    $.lWindow.setContainerMarginTop();
-});
 $.lWindow = (function () {
     var self = {};
     var defContainerMarginTop = 50;
     // set extra margin-top
     var containerMarginTop = defContainerMarginTop;
+
+    $(window).on('resize', function () {
+        $.lWindow.setContainerMarginTop();
+    });
+
     self.setMarginTopVal = function (val) {
         val = parseInt(val);
         if (val < defContainerMarginTop) {

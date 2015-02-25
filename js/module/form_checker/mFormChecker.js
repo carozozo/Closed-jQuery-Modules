@@ -1,6 +1,6 @@
 /**
  * The form-checker module
- * v.2.0
+ * v.3.0
  * @author Caro.Huang
  */
 
@@ -30,14 +30,11 @@
  * removeCheckerClass: remove all class by form-checker
  * checkForm: start check form, and return bool
  *
- * RETURN
- * mFormCheckerPass - the result after checked
- *
  * @param [opt]
  * @returns {$.fn}
  */
-$.fn.mFormChecker = function (opt) {
-    var self = this;
+$.mFormChecker = function (opt) {
+    var self = {};
     var langPathRoot = 'mFormChecker.';
     // save the reg dom for each check type
     var daRequired = [];
@@ -48,7 +45,6 @@ $.fn.mFormChecker = function (opt) {
     var daEqualTarget = [];
     var daMinLengthSource = [];
     var daMinLength = [];
-//    var mFormCheckerPass = false;
     // the default options
     var onBlur = false;
     var usePlaceHolder = true;
@@ -134,6 +130,42 @@ $.fn.mFormChecker = function (opt) {
             setToolTip(dom);
         }
     };
+    var removeErrStyle = function (dom) {
+        dom.css({
+            'background-color': ''
+        });
+    };
+    var setRequiredErrStyle = function (dom) {
+        dom.css({
+            'background-color': '#ebcccc'
+        });
+    };
+    var setNumErrStyle = function (dom) {
+        dom.css({
+            'background-color': '#b9def0'
+        });
+    };
+    var setIntErrStyle = function (dom) {
+        dom.css({
+            'background-color': '#d1eeec'
+        });
+    };
+    var setEmailErrStyle = function (dom) {
+        dom.css({
+            'background-color': '#b2cce9'
+        });
+    };
+    var setEqualErrStyle = function (dom) {
+        dom.css({
+            'background-color': '#f5e79e'
+        });
+    };
+    var setMinLengthErrStyle = function (dom) {
+        dom.css({
+            'background-color': '#bcf5ae'
+        });
+    };
+
     /**
      * check the required-type
      * @param [dom]
@@ -143,13 +175,12 @@ $.fn.mFormChecker = function (opt) {
         var pass = true;
         var check = function (dom) {
             var val = dom.getVal();
-            var sClass = 'check-form-required';
             if (!val && val !== 0) {
-                dom.lClass(sClass);
+                setRequiredErrStyle(dom);
                 pass = false;
                 return;
             }
-            dom.removeClass(sClass);
+            removeErrStyle(dom);
         };
         if (dom) {
             check(dom);
@@ -169,13 +200,12 @@ $.fn.mFormChecker = function (opt) {
         var pass = true;
         var check = function (dom) {
             var val = dom.val().trim();
-            var sClass = 'check-form-num';
             if (val && !$.lStr.isNumeric(val)) {
-                dom.lClass(sClass);
+                setNumErrStyle(dom);
                 pass = false;
                 return;
             }
-            dom.removeClass(sClass);
+            removeErrStyle(dom);
         };
         if (dom) {
             check(dom);
@@ -195,13 +225,12 @@ $.fn.mFormChecker = function (opt) {
         var pass = true;
         var check = function (dom) {
             var val = dom.val().trim();
-            var sClass = 'check-form-int';
             if (val && !$.lStr.isInt(val)) {
-                dom.lClass(sClass);
+                setIntErrStyle(dom);
                 pass = false;
                 return;
             }
-            dom.removeClass(sClass);
+            removeErrStyle(dom);
         };
         if (dom) {
             check(dom);
@@ -221,13 +250,12 @@ $.fn.mFormChecker = function (opt) {
         var pass = true;
         var check = function (dom) {
             var val = dom.val().trim();
-            var sClass = 'check-form-email';
             if (val && !$.lStr.isEmail(val)) {
-                dom.lClass(sClass);
+                setEmailErrStyle(dom);
                 pass = false;
                 return;
             }
-            dom.removeClass(sClass);
+            removeErrStyle(dom);
         };
         if (dom) {
             check(dom);
@@ -246,17 +274,16 @@ $.fn.mFormChecker = function (opt) {
     var checkEqual = function (opt) {
         var pass = true;
         var check = function (opt) {
-            var src = opt.src;
-            var tar = opt.tar;
-            var srcVal = src.val().trim();
-            var tarVal = tar.val().trim();
-            var sClass = 'check-form-equal';
+            var dSrc = opt.src;
+            var dTar = opt.tar;
+            var srcVal = dSrc.val().trim();
+            var tarVal = dTar.val().trim();
             if (srcVal != tarVal) {
-                src.lClass(sClass);
+                setEqualErrStyle(dSrc);
                 pass = false;
                 return;
             }
-            src.removeClass(sClass);
+            removeErrStyle(dSrc);
         };
         if (opt) {
             check(opt);
@@ -280,18 +307,16 @@ $.fn.mFormChecker = function (opt) {
     var checkMinLength = function (opt) {
         var pass = true;
         var check = function (opt) {
-            var src = opt.src;
+            var dSrc = opt.src;
             var minLength = opt.minLength;
-            var srcVal = src.val().trim();
+            var srcVal = dSrc.val().trim();
             var valLength = srcVal.length;
-            var sClass = 'check-form-minLength';
-
             if (valLength > 0 && valLength < minLength) {
-                src.lClass(sClass);
+                setMinLengthErrStyle(dSrc);
                 pass = false;
                 return;
             }
-            src.removeClass(sClass);
+            removeErrStyle(dSrc);
         };
         if (opt) {
             check(opt);
@@ -306,12 +331,10 @@ $.fn.mFormChecker = function (opt) {
             });
         }
         return pass;
-
-
     };
 
     self.addRequired = function (aDom) {
-        var aDom = $.lHelper.coverToArr(aDom);
+        aDom = $.lHelper.coverToArr(aDom);
         var subLangPath = langPathRoot + 'required';
         $.each(aDom, function (i, dom) {
             if (daRequired.indexOf(dom) > -1) {
@@ -330,11 +353,12 @@ $.fn.mFormChecker = function (opt) {
     self.removeRequired = function (aDom) {
         aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
-            var indexInSource = daRequired.indexOf(dom);
-            if (indexInSource < 0) {
-                return;
-            }
-            $.lArr.removeByIndex(daRequired, indexInSource);
+//            var indexInSource = daRequired.indexOf(dom);
+//            if (indexInSource < 0) {
+//                return;
+//            }
+//            $.lArr.removeByIndex(daRequired, indexInSource);
+            $.lArr.removeByArrVal(daRequired, dom);
             dom.off(sBlurEventRoot + 'required');
             removeLangPathByKey(dom, 'required');
             // reset tip after removeLangPath
@@ -361,11 +385,12 @@ $.fn.mFormChecker = function (opt) {
     self.removeNum = function (aDom) {
         aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
-            var indexInSource = daNum.indexOf(dom);
-            if (indexInSource < 0) {
-                return;
-            }
-            $.lArr.removeByIndex(daNum, indexInSource);
+//            var indexInSource = daNum.indexOf(dom);
+//            if (indexInSource < 0) {
+//                return;
+//            }
+//            $.lArr.removeByIndex(daNum, indexInSource);
+            $.lArr.removeByArrVal(daNum, dom);
             dom.off(sBlurEventRoot + 'num');
             removeLangPathByKey(dom, 'num');
             setTip(dom);
@@ -391,11 +416,12 @@ $.fn.mFormChecker = function (opt) {
     self.removeInt = function (aDom) {
         aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
-            var indexInSource = daInt.indexOf(dom);
-            if (daInt.indexOf(dom) < 0) {
-                return;
-            }
-            $.lArr.removeByIndex(daInt, indexInSource);
+//            var indexInSource = daInt.indexOf(dom);
+//            if (daInt.indexOf(dom) < 0) {
+//                return;
+//            }
+//            $.lArr.removeByIndex(daInt, indexInSource);
+            $.lArr.removeByArrVal(daInt, dom);
             dom.off(sBlurEventRoot + 'int');
             removeLangPathByKey(dom, 'int');
             setTip(dom);
@@ -421,11 +447,12 @@ $.fn.mFormChecker = function (opt) {
     self.removeEmail = function (aDom) {
         aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
-            var indexInSource = daEmail.indexOf(dom);
-            if (indexInSource < 0) {
-                return;
-            }
-            $.lArr.removeByIndex(daEmail, indexInSource);
+//            var indexInSource = daEmail.indexOf(dom);
+//            if (indexInSource < 0) {
+//                return;
+//            }
+//            $.lArr.removeByIndex(daEmail, indexInSource);
+            $.lArr.removeByArrVal(daEmail, dom);
             dom.off(sBlurEventRoot + 'email');
             removeLangPathByKey(dom, 'email');
             setTip(dom);
@@ -435,7 +462,12 @@ $.fn.mFormChecker = function (opt) {
         if (daEqualSource.indexOf(dom) > -1) {
             return;
         }
-        setLangPath(dom, 'equal', getEqualLang);
+        setLangPath(dom, 'equal', function () {
+            // ex. tarName()='password/密码/密碼'
+            var sTarName = $.lHelper.executeIfFn(tarName);
+            var equalLangFn = $.lLang.parseLanPath(langPathRoot + 'equal');
+            return equalLangFn(sTarName);
+        });
         daEqualSource.push(dom);
         daEqualTarget.push(tarDom);
         if (onBlur) {
@@ -447,24 +479,19 @@ $.fn.mFormChecker = function (opt) {
                 checkEqual(opt);
             });
         }
-        function getEqualLang() {
-            // ex. tarName()='password/密码/密碼'
-            var sTarName = $.lHelper.executeIfFn(tarName);
-            var equalLangFn = $.lLang.parseLanPath(langPathRoot + 'equal');
-            return equalLangFn(sTarName);
-        }
-
         setTip(dom);
     };
     self.removeEqual = function (aDom) {
         aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
-            var indexInSource = daEqualSource.indexOf(dom);
-            if (indexInSource < 0) {
-                return;
-            }
-            $.lArr.removeByIndex(daEqualSource, indexInSource);
-            $.lArr.removeByIndex(daEqualTarget, indexInSource);
+//            var indexInSource = daEqualSource.indexOf(dom);
+//            if (indexInSource < 0) {
+//                return;
+//            }
+//            $.lArr.removeByIndex(daEqualSource, indexInSource);
+//            $.lArr.removeByIndex(daEqualTarget, indexInSource);
+            $.lArr.removeByArrVal(daEqualSource, dom);
+            $.lArr.removeByArrVal(daEqualTarget, dom);
             dom.off(sBlurEventRoot + 'equal');
             removeLangPathByKey(dom, 'equal');
             setTip(dom);
@@ -476,7 +503,10 @@ $.fn.mFormChecker = function (opt) {
             if (daMinLengthSource.indexOf(dom) > -1) {
                 return;
             }
-            setLangPath(dom, 'minLength', getMinLengthLangFn);
+            setLangPath(dom, 'minLength', function () {
+                var minLengthLangFn = $.lLang.parseLanPath(langPathRoot + 'minLength');
+                return minLengthLangFn(minLength);
+            });
             daMinLengthSource.push(dom);
             daMinLength.push(minLength);
             if (onBlur) {
@@ -488,47 +518,52 @@ $.fn.mFormChecker = function (opt) {
                     checkMinLength(opt);
                 });
             }
-
             setTip(dom);
         });
-        function getMinLengthLangFn() {
-            var minLengthLangFn = $.lLang.parseLanPath(langPathRoot + 'minLength');
-            return minLengthLangFn(minLength);
-        }
     };
     self.removeMinLength = function (aDom) {
         aDom = $.lHelper.coverToArr(aDom);
         $.each(aDom, function (i, dom) {
-            var indexInSource = daMinLengthSource.indexOf(dom);
-            if (indexInSource < 0) {
-                return;
-            }
-            $.lArr.removeByIndex(daMinLengthSource, indexInSource);
-            $.lArr.removeByIndex(daMinLength, indexInSource);
+//            var indexInSource = daMinLengthSource.indexOf(dom);
+//            if (indexInSource < 0) {
+//                return;
+//            }
+//            $.lArr.removeByIndex(daMinLengthSource, indexInSource);
+//            $.lArr.removeByIndex(daMinLength, indexInSource);
+            $.lArr.removeByArrVal(daMinLengthSource, dom);
+            $.lArr.removeByArrVal(daMinLength, dom);
             dom.off(sBlurEventRoot + 'minLength');
             removeLangPathByKey(dom, 'minLength');
             setTip(dom);
         });
     };
     self.removeCheckerClass = function () {
-        self.find('[class*=check-form-]').removeClass(function (i, sClass) {
-            return (sClass.match(/\bcheck-form-\S+/g) || []).join(' ');
+        var arr = [];
+        $.lArr.extendArr(arr, daRequired);
+        $.lArr.extendArr(arr, daNum);
+        $.lArr.extendArr(arr, daInt);
+        $.lArr.extendArr(arr, daEmail);
+        $.lArr.extendArr(arr, daEqualSource);
+        $.lArr.extendArr(arr, daMinLengthSource);
+        $.each(arr, function (i, dom) {
+            removeErrStyle(dom);
         });
+//        self.find('[class*=check-form-]').removeClass(function (i, sClass) {
+//            return (sClass.match(/\bcheck-form-\S+/g) || []).join(' ');
+//        });
     };
-    // TODO
     self.checkForm = function () {
         var pass = true;
-        var aCheckFn = [checkRequired, checkNum, checkInt, checkEqual, checkMinLength];
+        var aCheckFn = [checkRequired, checkNum, checkInt, checkEmail, checkEqual, checkMinLength];
         $.each(aCheckFn, function (index, fn) {
             if (!fn()) {
                 pass = false;
+                return false;
             }
+            return true;
         });
-//        mFormCheckerPass = pass;
-        self.mFormCheckerPass = pass;
         return pass;
     };
-//    self.mFormCheckerPass = mFormCheckerPass;
     self.removeCheckerClass();
     return self;
 };

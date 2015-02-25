@@ -21,10 +21,10 @@ $.tLan.mBtn.en_us = {
     Reject: 'Reject',
     Confirm: 'Confirm',
     Cancel: 'Cancel',
-    AdvancedSearch: 'Advanced search',
     Save: 'Save',
     Open: 'Open',
-    Close: 'Close'
+    Close: 'Close',
+    Refund: 'Refund'
 };
 
 $.tLan.mBtn.zh_tw = {
@@ -43,10 +43,10 @@ $.tLan.mBtn.zh_tw = {
     Reject: '拒绝',
     Confirm: '確認',
     Cancel: '取消',
-    AdvancedSearch: '進階搜尋',
     Save: '儲存',
     Open: '開啟',
-    Close: '關閉'
+    Close: '關閉',
+    Refund: '退款'
 };
 
 $.tLan.mBtn.zh_cn = {
@@ -65,8 +65,8 @@ $.tLan.mBtn.zh_cn = {
     Reject: '拒絕',
     Confirm: '确认',
     Cancel: '取消',
-    AdvancedSearch: '进阶搜寻',
     Save: '储存',
     Open: '开启',
-    Close: '关闭'
+    Close: '关闭',
+    Refund: '退款'
 };

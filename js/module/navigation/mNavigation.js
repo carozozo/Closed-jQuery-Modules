@@ -93,7 +93,7 @@ $.mNav = (function () {
             // add dropable css
             dTab.droppable({
                 accept: '.navTab',
-                activeClass: 'basic-bg-gray2'
+                activeClass: 'basic-bg-gray'
             });
 
             // set Tab-DOM to opt

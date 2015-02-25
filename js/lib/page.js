@@ -67,7 +67,6 @@ $.lPage = (function () {
         return oPreviewPage;
     };
     var setPreviewPageInfo = function (page, pageOpt) {
-        // TODO 新增排除機制
         page = $.lStr.addHead(page, '/');
         if (page === self.getLoginPage()) {
             return;
@@ -81,9 +80,7 @@ $.lPage = (function () {
         if ($.lEventEmitter.emitEvent('befSetPreviewPage', emitObj) === false) {
             return;
         }
-
         $.lCookie.set('previewPage', oPreviewPage);
-        $.tSysVars.previewPage = oPreviewPage;
         self.setPageOpt(page, pageOpt, {
             ifReset: true
         });
@@ -111,7 +108,7 @@ $.lPage = (function () {
         // pageInfo.title is lang-path
         var titleLangPath = oPageInfo.title;
         var initFn = oPageInfo.initFn;
-        var webTitle = $.tCfg.webTitle || '';
+        var webTitle = $.lSysVar.getSysVar('webTitle') || '';
         var setTitle = function () {
             var title = $.lLang.parseLanPath(titleLangPath);
             $('title').html(webTitle + ' - ' + title);
@@ -134,16 +131,13 @@ $.lPage = (function () {
     };
     /**
      * get page-option including basic-list-opt
-     * @param pageSizeName
+     * @param page
      * @param [extendOpt]
      * @returns {{startPage: number, pageSize: number}}
      */
-    self.getPageListOpt = function (pageSizeName, extendOpt) {
-        var pageSize = 10;
-        if (pageSizeName) {
-            pageSizeName = $.lStr.addTail(pageSizeName, 'PageSize');
-            pageSize = $.lCookie.get(pageSizeName) || 10;
-        }
+    self.getPageListOpt = function (page, extendOpt) {
+        var pageSizeName = $.lStr.addTail(page, 'PageSize');
+        var pageSize = $.lCookie.get(pageSizeName) || 10;
         var pageOpt = {
             startPage: 0,
             pageSize: pageSize
@@ -155,11 +149,19 @@ $.lPage = (function () {
     };
     /**
      * set page-size by cookie with page-sizeName
-     * @param pageSizeName
+     * @param page
      * @param pageSize
      */
-    self.setPageSize = function (pageSizeName, pageSize) {
-        pageSizeName = $.lStr.addTail(pageSizeName, 'PageSize');
+    self.setPageSize = function (page, pageSize) {
+        var oPageInfo = self.getPageInfo(page);
+        if (oPageInfo) {
+            var pageOpt = oPageInfo.pageOpt;
+            var pageDefOpt = oPageInfo.pageDefOpt;
+            pageOpt.pageSize = pageSize;
+            pageDefOpt.pageSize = pageSize;
+            setPreviewPageInfo(page, pageOpt);
+        }
+        var pageSizeName = $.lStr.addTail(page, 'PageSize');
         $.lCookie.set(pageSizeName, pageSize);
     };
     self.getPageInfo = function (page) {
@@ -169,6 +171,9 @@ $.lPage = (function () {
         var pms = opt.pms;
         var title = opt.title;
         var pageOpt = opt.opt;
+        if (opt.setListOpt) {
+            pageOpt = self.getPageListOpt(page, pageOpt);
+        }
         var pageDefOpt = $.lObj.cloneObj(pageOpt);
         var fn = opt.fn;
 
@@ -203,6 +208,46 @@ $.lPage = (function () {
         }
         oPageInfo.pageOpt = $.lObj.extendObj(oPageInfo.pageOpt, pageOpt);
     };
+    self.getPageHtml = function (page, opt, cb) {
+        var getPageAjFn = null;
+        var optForGetPage = {};
+        var ifSwitch = true;
+        var target = $('body');
+        var async = true;
+        if (opt) {
+            optForGetPage.page = page;
+            optForGetPage.tplType = opt.tplType || 'empty';
+            optForGetPage.tplModel = opt.tplModel || null;
+            ifSwitch = opt.ifSwitch !== false;
+            target = opt.target || target;
+            async = opt.async !== false;
+        }
+        if (async) {
+            getPageAjFn = $.ajax.main.getPageAsyncAJ;
+        }
+        else {
+            getPageAjFn = $.ajax.main.getPageAJ;
+        }
+        var ret = '';
+        getPageAjFn(optForGetPage, function (res) {
+            $.lAjax.parseRes(res, function (html) {
+                if (!ifSwitch) {
+                    ret = html;
+                    return;
+                }
+                target = $.lHelper.coverToDom(target);
+                target.fadeOut(function () {
+                    target.html(html);
+                    $.lUtil.checkPms(target);
+                    target.fadeIn();
+                    setTimeout(function () {
+                        cb && cb();
+                    }, 1);
+                });
+            });
+        });
+        return ret;
+    };
     self.goPage = function (page, pageOpt, opt, cb) {
         var oPageInfo = self.getPageInfo(page);
         if (!oPageInfo) {
@@ -216,7 +261,7 @@ $.lPage = (function () {
         }
         var sTarget = 'Container';
         var dTarget = $('#container');
-        var tplOpt = {
+        var optForGetPage = {
             target: dTarget
         };
         var runInit = false;
@@ -232,16 +277,16 @@ $.lPage = (function () {
         if (goBody) {
             sTarget = 'Body';
             dTarget = $('body');
-            tplOpt.tplType = 'content';
+            optForGetPage.tplType = 'content';
             runInit = true;
         }
-        tplOpt.target = dTarget;
-
+        optForGetPage.target = dTarget;
         // emit custom even
         if ($.lEventEmitter.emitEvent('bef' + sTarget + 'Switch', emitObj) === false) {
             return;
         }
-        $.lUtil.getPageSwitch(page, tplOpt, function () {
+        $.lAjax.abortRunningAjax();
+        self.getPageHtml(page, optForGetPage, function () {
             if (runInit) {
                 $.init.startInit();
             } else {
@@ -280,13 +325,14 @@ $.lPage = (function () {
         var byDefault = false;
         if (opt) {
             goBody = opt.goBody !== false;
-            byDefault = opt.byDefault == true;
+            byDefault = opt.byDefault === true;
         }
         var oPreviewPage = getPreviewPageInfo();
         var page = oPreviewPage.page;
         var pageOpt = oPreviewPage.pageOpt;
         if (byDefault) {
-            pageOpt = setPageOptToDef(page);
+            var defOpt = getPageDefOpt(page);
+            pageOpt = $.lObj.extendObj(pageOpt, defOpt);
         }
         self.goPage(page, pageOpt, {
             goBody: goBody

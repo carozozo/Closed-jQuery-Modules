@@ -35,7 +35,7 @@ $.lModel = (function () {
      */
     self.mapDom = function (model, dom, cb) {
         // type is id or class
-        dom = $.lStr.toDom(dom);
+        dom = $.lHelper.coverToDom(dom);
         if (model) {
             $.each(model, function (key, val) {
                 var subDom = dom.find('#' + key);
